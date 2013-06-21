@@ -1,0 +1,22 @@
+{
+    "Nick":        "",
+    "Ident":       "",
+    "Name":        "",
+
+    "Pass":        "",
+    "SSL":         false,
+    "Server":      "",
+    "Port":        8000,
+
+    "Version":     "",
+    "QuitMessage": "",
+
+    "Botinfo": {
+        "Chans": [ "" ],
+        
+        "Access": {
+            "admin": [ "" ],
+            "op": [ "" ]
+        }
+    }
+}
