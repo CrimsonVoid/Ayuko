@@ -217,5 +217,5 @@ pip-log.txt
 #############
 ## User Defined
 #############
-.gob
+*.gob
 codes/

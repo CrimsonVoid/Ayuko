@@ -6,17 +6,24 @@
     "Pass":        "",
     "SSL":         false,
     "Server":      "",
-    "Port":        8000,
+    "Port":        7000,
 
     "Version":     "",
     "QuitMessage": "",
 
     "Botinfo": {
-        "Chans": [ "" ],
+        "Chans": [
+            "#"
+        ],
         
         "Access": {
-            "admin": [ "" ],
-            "op": [ "" ]
+            "admin": [
+                ""
+            ],
+            "op": [
+            ],
+            "blacklist": [
+            ]
         }
     }
 }
