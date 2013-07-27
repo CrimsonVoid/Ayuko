@@ -122,7 +122,7 @@ func setupHandlers(con *irc.Conn, chanConfig *lib.BotInfo) {
 	con.HandleFunc(irc.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
 		// Sanitize nick
 		nick := escapeRegexp(strings.ToLower(con.Me().Nick))
-		leaveR := regexp.MustCompile(fmt.Sprintf("^(?P<cmd>leave|quit) %s\\s?$", nick))
+		leaveR := regexp.MustCompile(fmt.Sprintf(`^(?P<cmd>leave|quit) %s\s?$`, nick))
 		groups, err := matchGroups(leaveR, strings.ToLower(line.Text()))
 
 		if err != nil {
@@ -170,21 +170,21 @@ func matchGroups(reg *regexp.Regexp, s string) (map[string]string, error) {
 }
 
 func escapeRegexp(s string) string {
-	s = strings.Replace(s, "[", "\\[", -1)
-	s = strings.Replace(s, "]", "\\]", -1)
+	s = strings.Replace(s, `[`, `\[`, -1)
+	s = strings.Replace(s, `]`, `\]`, -1)
 
-	s = strings.Replace(s, "{", "\\{", -1)
-	s = strings.Replace(s, "}", "\\}", -1)
+	s = strings.Replace(s, `{`, `\{`, -1)
+	s = strings.Replace(s, `}`, `\}`, -1)
 
-	s = strings.Replace(s, "(", "\\(", -1)
-	s = strings.Replace(s, ")", "\\)", -1)
+	s = strings.Replace(s, `(`, `\(`, -1)
+	s = strings.Replace(s, `)`, `\)`, -1)
 
-	s = strings.Replace(s, "^", "\\^", -1)
-	s = strings.Replace(s, "$", "\\$", -1)
+	s = strings.Replace(s, `^`, `\^`, -1)
+	s = strings.Replace(s, `$`, `\$`, -1)
 
-	s = strings.Replace(s, "*", "\\*", -1)
-	s = strings.Replace(s, "?", "\\?", -1)
-	s = strings.Replace(s, ".", "\\.", -1)
+	s = strings.Replace(s, `*`, `\*`, -1)
+	s = strings.Replace(s, `?`, `\?`, -1)
+	s = strings.Replace(s, `.`, `\.`, -1)
 
 	return s
 }

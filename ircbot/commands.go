@@ -19,18 +19,18 @@ const (
 )
 
 const (
-	systemsL = "wii|wiiu|nid|ds|3ds|psn|live|steam|bnet"
-	systemsR = "(?P<system>" + systemsL + ")"
+	systemsL = `wii|wiiu|nid|ds|3ds|psn|live|steam|bnet`
+	systemsR = `(?P<system>` + systemsL + `)`
 	nickR    = "(?P<nick>[\\w{}\\[\\]^|`-]+)"
-	modeR    = "(?P<mode>[\\" + PUBLIC + PRIV + "])"
+	modeR    = `(?P<mode>[\` + PUBLIC + PRIV + `])`
 )
 
 var (
-	fcAdd  = regexp.MustCompile(fmt.Sprintf("^%sfc(ode)? add %s (?P<fcode>.*)", modeR, systemsR))
-	fcRem  = regexp.MustCompile(fmt.Sprintf("^%sfc(ode)? rem (%s|\\*)$", modeR, systemsR))
-	fcGet  = regexp.MustCompile(fmt.Sprintf("^%sfc(ode)? %s\\s?$", modeR, nickR))
-	fcList = regexp.MustCompile(fmt.Sprintf("^%sfc(ode)? list %s$", modeR, systemsR))
-	fcHelp = regexp.MustCompile(fmt.Sprintf("^%sfc(ode)?help$", modeR))
+	fcAdd  = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? add %s (?P<fcode>.*)`, modeR, systemsR))
+	fcRem  = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? rem (%s|\*)$`, modeR, systemsR))
+	fcGet  = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? %s\s?$`, modeR, nickR))
+	fcList = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? list %s$`, modeR, systemsR))
+	fcHelp = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)?help$`, modeR))
 
 	matches = []regMap{
 		{fcAdd, fnAdd},
@@ -74,29 +74,29 @@ func fnAdd(nick string, groups map[string]string) (string, error) {
 
 	switch groups["system"] {
 	case "wii":
-		re = regexp.MustCompile("\\d{4}-\\d{4}-\\d{4}-\\d{4}$")
+		re = regexp.MustCompile(`\d{4}-\d{4}-\d{4}-\d{4}$`)
 		save = &fCode.Wii
 	case "wiiu", "nid":
-		re = regexp.MustCompile("^.{6,16}\\s?$")
+		re = regexp.MustCompile(`^.{6,16}\s?$`)
 		save = &fCode.Wiiu
 	case "ds":
-		re = regexp.MustCompile("^\\d{4}-\\d{4}-\\d{4}\\s?$")
+		re = regexp.MustCompile(`^\d{4}-\d{4}-\d{4}\s?$`)
 		save = &fCode.Ds
 	case "3ds":
-		re = regexp.MustCompile("^\\d{4}-\\d{4}-\\d{4}\\s?$")
+		re = regexp.MustCompile(`^\d{4}-\d{4}-\d{4}\s?$`)
 		save = &fCode.Ds3
 	case "psn":
-		re = regexp.MustCompile("^.{6,16}\\s?$")
+		re = regexp.MustCompile(`^.{6,16}\s?$`)
 		save = &fCode.Psn
 	case "live":
-		re = regexp.MustCompile("^.{6,15}\\s?$")
+		re = regexp.MustCompile(`^.{6,15}\s?$`)
 		save = &fCode.Psn
 	case "steam":
 		// TODO|fcode - steam nick restrictions
-		re = regexp.MustCompile("^.*")
+		re = regexp.MustCompile(`^.*`)
 		save = &fCode.Steam
 	case "bnet":
-		re = regexp.MustCompile("^.*\\d{3}\\s?$")
+		re = regexp.MustCompile(`^.*\d{3}\s?$`)
 		save = &fCode.Bnet
 	}
 
