@@ -1,7 +1,6 @@
 package ircbot
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -14,15 +13,8 @@ type regMap struct {
 }
 
 const (
-	PUBLIC = "@"
-	PRIV   = "."
-)
-
-const (
 	systemsL = `wii|wiiu|nid|ds|3ds|psn|live|steam|bnet`
 	systemsR = `(?P<system>` + systemsL + `)`
-	nickR    = "(?P<nick>[\\w{}\\[\\]^|`-]+)"
-	modeR    = `(?P<mode>[\` + PUBLIC + PRIV + `])`
 )
 
 var (
@@ -57,7 +49,7 @@ func MatchFC(nick, line string) (map[string]string, string, error) {
 		return groups, msg, nil
 	}
 
-	return nil, "", errors.New(fmt.Sprintf("No matches found for %s", line))
+	return nil, "", fmt.Errorf("No matches found for %s", line)
 }
 
 func fnAdd(nick string, groups map[string]string) (string, error) {

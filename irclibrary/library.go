@@ -2,7 +2,6 @@ package irclibrary
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	irc "github.com/fluffle/goirc/client"
 	"io/ioutil"
@@ -32,9 +31,9 @@ func (serverInfo *ServerInfo) configServer() (*irc.Config, error) {
 	// Check there is enough info to set up a server
 	switch {
 	case serverInfo.Nick == "":
-		return nil, errors.New("Specify a Nick in the config file")
+		return nil, fmt.Errorf("Specify a Nick in the config file")
 	case serverInfo.Server == "":
-		return nil, errors.New("Specify a Server in the config file")
+		return nil, fmt.Errorf("Specify a Server in the config file")
 	}
 
 	if serverInfo.Ident == "" {

@@ -2,7 +2,6 @@ package ircbot
 
 import (
 	"encoding/gob"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -84,7 +83,7 @@ func matchGroups(reg *regexp.Regexp, s string) (map[string]string, error) {
 	groups := make(map[string]string)
 	res := reg.FindStringSubmatch(s)
 	if res == nil {
-		return nil, errors.New(fmt.Sprintf("%s did not match regexp", s))
+		return nil, fmt.Errorf("%s did not match regexp", s)
 	}
 
 	groupNames := reg.SubexpNames()
