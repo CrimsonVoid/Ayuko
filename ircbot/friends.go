@@ -21,9 +21,13 @@ var friendCodes = make(map[string]*friendCode)
 
 func Start() error {
 	codesFile, err := os.Open("codes.gob")
-	if err != nil {
+
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
 		return err
 	}
+
 	defer codesFile.Close()
 
 	codesDec := gob.NewDecoder(codesFile)
