@@ -1,17 +1,17 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
-	"github.com/crimsonvoid/anyabot/ircbot"
-	lib "github.com/crimsonvoid/anyabot/irclibrary"
-	irc "github.com/fluffle/goirc/client"
 	"log"
-	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/crimsonvoid/anyabot/ircbot"
+	lib "github.com/crimsonvoid/anyabot/irclibrary"
+	"github.com/crimsonvoid/console"
+	irc "github.com/fluffle/goirc/client"
 )
 
 var (
@@ -34,37 +34,23 @@ func main() {
 	checkError(err, log.Fatalln)
 
 	// Console Input
-	in := make(chan string)
-	go func() {
-		inp := bufio.NewReader(os.Stdin)
-		for {
-			s, err := inp.ReadString('\n')
-			if err != nil {
-				close(in)
-				client.Quit()
-				break
-			}
-			if len(s) > 2 {
-				in <- s[0 : len(s)-1]
-			}
-		}
-	}()
-	go func() {
-		for cmd := range in {
-			switch cmd {
-			case ":q":
-				client.Quit()
-			case ":s":
-				err = ircbot.Start()
-				checkError(err, log.Println)
-			case ":l":
-				err = ircbot.Exit()
-				checkError(err, log.Println)
-			case ":codes":
-				ircbot.Print()
-			}
-		}
-	}()
+	cn := console.New()
+	cn.Register(":q", func(s string) {
+		client.Quit()
+	})
+	cn.Register(":s", func(s string) {
+		err = ircbot.Exit()
+		checkError(err, log.Println)
+	})
+	cn.Register(":l", func(s string) {
+		err = ircbot.Start()
+		checkError(err, log.Println)
+	})
+	cn.Register(":codes", func(s string) {
+		ircbot.Print()
+	})
+
+	cn.Monitor()
 
 	<-quit
 	<-time.After(time.Second)
