@@ -50,7 +50,7 @@ func main() {
 		ircbot.Print()
 	})
 
-	go log.Println(cn.Monitor())
+	go cn.Monitor()
 
 	<-quit
 	<-time.After(time.Second)
