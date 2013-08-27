@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sync"
 	"time"
 )
 
@@ -17,7 +18,10 @@ type friendCode struct {
 	Bnet      string
 }
 
-var friendCodes = make(map[string]*friendCode)
+var (
+	friendCodes = make(map[string]*friendCode)
+	fcMut       = new(sync.RWMutex)
+)
 
 func Start() error {
 	codesFile, err := os.Open("codes.gob")
@@ -31,7 +35,9 @@ func Start() error {
 	defer codesFile.Close()
 
 	codesDec := gob.NewDecoder(codesFile)
+	fcMut.Lock()
 	err = codesDec.Decode(&friendCodes)
+	fcMut.Unlock()
 
 	return err
 }
@@ -61,6 +67,9 @@ func Exit() error {
 
 	log.Print("Saving friend codes... ")
 
+	fcMut.RLock()
+	defer fcMut.RUnlock()
+
 	codesEnc := gob.NewEncoder(codesFile)
 	if err = codesEnc.Encode(friendCodes); err != nil {
 		return err
@@ -78,9 +87,11 @@ func Exit() error {
 
 // Logs friendCodes
 func Print() {
+	fcMut.RLock()
 	for nick, codes := range friendCodes {
 		log.Printf("%-25s%#v\n", nick, codes)
 	}
+	fcMut.RUnlock()
 }
 
 func matchGroups(reg *regexp.Regexp, s string) (map[string]string, error) {

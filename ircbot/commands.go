@@ -61,6 +61,9 @@ func fnAdd(nick string, groups map[string]string) (string, error) {
 		re   *regexp.Regexp
 	)
 
+	fcMut.Lock()
+	defer fcMut.Unlock()
+
 	fCode := friendCodes[nick]
 	if fCode == nil {
 		fCode = new(friendCode)
@@ -109,6 +112,10 @@ func fnRem(nick string, groups map[string]string) (string, error) {
 	groups["mode"] = PRIV
 
 	nick = strings.ToLower(nick)
+
+	fcMut.Lock()
+	defer fcMut.Unlock()
+
 	fc, ok := friendCodes[nick]
 	if !ok {
 		return "You have not saved and user names", nil
@@ -141,6 +148,9 @@ func fnRem(nick string, groups map[string]string) (string, error) {
 }
 
 func fnGet(nick string, groups map[string]string) (string, error) {
+	fcMut.RLock()
+	defer fcMut.RUnlock()
+
 	fc, ok := friendCodes[strings.ToLower(groups["nick"])]
 	if !ok {
 		return fmt.Sprintf("%s has not saved any friend codes", groups["nick"]), nil
@@ -177,6 +187,10 @@ func fnGet(nick string, groups map[string]string) (string, error) {
 
 func fnList(nick string, groups map[string]string) (string, error) {
 	codeList := ""
+
+	fcMut.RLock()
+	defer fcMut.RUnlock()
+
 	for nick, codes := range friendCodes {
 		switch groups["system"] {
 		case "wii":
