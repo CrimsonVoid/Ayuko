@@ -3,9 +3,10 @@ package irclibrary
 import (
 	"encoding/json"
 	"fmt"
-	irc "github.com/fluffle/goirc/client"
 	"io/ioutil"
 	"time"
+
+	irc "github.com/fluffle/goirc/client"
 )
 
 type ServerInfo struct {

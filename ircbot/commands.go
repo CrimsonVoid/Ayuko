@@ -53,6 +53,8 @@ func MatchFC(nick, line string) (map[string]string, string, error) {
 }
 
 func fnAdd(nick string, groups map[string]string) (string, error) {
+	groups["mode"] = PRIV
+
 	nick = strings.ToLower(nick)
 	var (
 		save *string
@@ -104,6 +106,8 @@ func fnAdd(nick string, groups map[string]string) (string, error) {
 }
 
 func fnRem(nick string, groups map[string]string) (string, error) {
+	groups["mode"] = PRIV
+
 	nick = strings.ToLower(nick)
 	fc, ok := friendCodes[nick]
 	if !ok {
@@ -214,6 +218,8 @@ func fnList(nick string, groups map[string]string) (string, error) {
 }
 
 func fnHelp(nick string, groups map[string]string) (string, error) {
+	groups["mode"] = PRIV
+
 	return fmt.Sprintf("Save and retrieve gaming identities."+
-		" Syntax: [@.]fc(ode) add|rem|list %s (code) || .fc [nick]", systemsL), nil
+		" Syntax: [@.]fc(ode) [add|rem|list] [%s] (code) || .fc nick", systemsL), nil
 }
