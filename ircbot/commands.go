@@ -18,11 +18,11 @@ const (
 )
 
 var (
-	fcAdd  = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? add %s (?P<fcode>.*)`, modeR, systemsR))
-	fcRem  = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? rem (%s|\*)$`, modeR, systemsR))
-	fcGet  = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? %s\s?$`, modeR, nickR))
-	fcList = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)? list %s$`, modeR, systemsR))
-	fcHelp = regexp.MustCompile(fmt.Sprintf(`^%sfc(ode)?help$`, modeR))
+	fcAdd  = regexp.MustCompile(fmt.Sprintf(`^%sfcode add %s (?P<fcode>.*)`, modeR, systemsR))
+	fcRem  = regexp.MustCompile(fmt.Sprintf(`^%sfcode rem (%s|\*)$`, modeR, systemsR))
+	fcGet  = regexp.MustCompile(fmt.Sprintf(`^%sfcode %s\s?$`, modeR, nickR))
+	fcList = regexp.MustCompile(fmt.Sprintf(`^%sfcode list %s$`, modeR, systemsR))
+	fcHelp = regexp.MustCompile(fmt.Sprintf(`^%sfcodehelp$`, modeR))
 
 	matches = []regMap{
 		{fcAdd, fnAdd},
