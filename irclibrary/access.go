@@ -2,8 +2,8 @@ package irclibrary
 
 type access map[string][]string
 
-func (a access) InGroup(group, nick string) bool {
-	users, ok := a[group]
+func (a *access) inGroup(nick, group string) bool {
+	users, ok := (*a)[group]
 	if !ok {
 		return false
 	}
@@ -17,9 +17,9 @@ func (a access) InGroup(group, nick string) bool {
 	return false
 }
 
-func (a access) InGroups(groups []string, nick string) bool {
+func (a *access) InGroups(nick string, groups ...string) bool {
 	for _, g := range groups {
-		if a.InGroup(g, nick) {
+		if a.inGroup(g, nick) {
 			return true
 		}
 	}

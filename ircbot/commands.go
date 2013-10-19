@@ -235,5 +235,5 @@ func fnHelp(nick string, groups map[string]string) (string, error) {
 	groups["mode"] = PRIV
 
 	return fmt.Sprintf("Save and retrieve gaming identities."+
-		" Syntax: [@.]fc(ode) [add|rem|list] [%s] (code) || .fc nick", systemsL), nil
+		" Syntax: [@.]fcode [add|rem|list] [%s] (code) || .fc nick", systemsL), nil
 }

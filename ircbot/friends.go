@@ -24,22 +24,7 @@ var (
 )
 
 func Start() error {
-	codesFile, err := os.Open("codes.gob")
-
-	if os.IsNotExist(err) {
-		return nil
-	} else if err != nil {
-		return err
-	}
-
-	defer codesFile.Close()
-
-	codesDec := gob.NewDecoder(codesFile)
-	fcMut.Lock()
-	err = codesDec.Decode(&friendCodes)
-	fcMut.Unlock()
-
-	return err
+	return Load("codes.gob")
 }
 
 func Exit() error {
@@ -49,34 +34,15 @@ func Exit() error {
 	if err := os.MkdirAll(timedPath, 755); err != nil {
 		return err
 	}
-
 	timedFileName := fmt.Sprintf("%s/%02d_(%02d.%02d).gob", timedPath, timeStamp.Day(),
 		timeStamp.Hour(), timeStamp.Minute())
-	timedFile, err := os.Create(timedFileName)
-	if err != nil {
-		return err
-	}
-
-	codesFile, err := os.Create("codes.gob")
-	if err != nil {
-		return err
-	}
-
-	defer timedFile.Close()
-	defer codesFile.Close()
 
 	log.Print("Saving friend codes... ")
 
-	fcMut.RLock()
-	defer fcMut.RUnlock()
-
-	codesEnc := gob.NewEncoder(codesFile)
-	if err = codesEnc.Encode(friendCodes); err != nil {
+	if err := Save("codes.gob"); err != nil {
 		return err
 	}
-
-	codesEnc = gob.NewEncoder(timedFile)
-	if err = codesEnc.Encode(friendCodes); err != nil {
+	if err := Save(timedFileName); err != nil {
 		return err
 	}
 
@@ -85,13 +51,44 @@ func Exit() error {
 	return nil
 }
 
+func Load(fileName string) error {
+	file, err := os.Open(fileName)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	codesDec := gob.NewDecoder(file)
+	fcMut.Lock()
+	defer fcMut.Unlock()
+
+	return codesDec.Decode(&friendCodes)
+}
+
+func Save(fileName string) error {
+	file, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	fcMut.RLock()
+	defer fcMut.RUnlock()
+
+	codesEnc := gob.NewEncoder(file)
+
+	return codesEnc.Encode(friendCodes)
+}
+
 // Logs friendCodes
 func Print() {
 	fcMut.RLock()
+	defer fcMut.RUnlock()
+
 	for nick, codes := range friendCodes {
 		log.Printf("%-25s%#v\n", nick, codes)
 	}
-	fcMut.RUnlock()
 }
 
 func matchGroups(reg *regexp.Regexp, s string) (map[string]string, error) {

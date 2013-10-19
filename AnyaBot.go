@@ -14,12 +14,10 @@ import (
 	irc "github.com/fluffle/goirc/client"
 )
 
-var (
-	configFile = flag.String("config", "config.json", "Server config file")
-	quit       = make(chan bool)
-)
+var quit = make(chan bool)
 
 func main() {
+	configFile := flag.String("config", "config.json", "Server configuration")
 	flag.Parse()
 
 	client, chanConfig, err := lib.New(*configFile)
@@ -39,11 +37,11 @@ func main() {
 		client.Quit()
 	})
 	cn.Register(":s", func(s string) {
-		err = ircbot.Exit()
+		err = ircbot.Save("codes.gob")
 		checkError(err, log.Println)
 	})
 	cn.Register(":l", func(s string) {
-		err = ircbot.Start()
+		err = ircbot.Load("codes.gob")
 		checkError(err, log.Println)
 	})
 	cn.Register(":codes", func(s string) {
@@ -51,6 +49,7 @@ func main() {
 	})
 
 	go cn.Monitor()
+	defer cn.Stop()
 
 	<-quit
 	<-time.After(time.Second)
@@ -77,7 +76,7 @@ func setupHandlers(con *irc.Conn, chanConfig *lib.BotInfo) {
 
 	// Accept invites from authorized groups
 	con.HandleFunc(irc.INVITE, func(con *irc.Conn, line *irc.Line) {
-		if chanConfig.Access.InGroup("admin", strings.ToLower(line.Nick)) {
+		if chanConfig.Access.InGroups(strings.ToLower(line.Nick), "admin") {
 			log.Printf("Invited to %s by %s\n", line.Text(), line.Nick)
 			con.Join(line.Text())
 		} else {
@@ -106,7 +105,7 @@ func setupHandlers(con *irc.Conn, chanConfig *lib.BotInfo) {
 	// Leave commands
 	con.HandleFunc(irc.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
 		// Sanitize nick
-		nick := escapeRegexp(strings.ToLower(con.Me().Nick))
+		nick := escapeRegexp(strings.ToLower(con.Me().Ident))
 		leaveR := regexp.MustCompile(fmt.Sprintf(`^(?P<cmd>leave|quit) %s\s?$`, nick))
 		groups, err := matchGroups(leaveR, strings.ToLower(line.Text()))
 
@@ -115,10 +114,10 @@ func setupHandlers(con *irc.Conn, chanConfig *lib.BotInfo) {
 			return
 		}
 
-		if chanConfig.Access.InGroup("admin", strings.ToLower(line.Nick)) {
+		if chanConfig.Access.InGroups(strings.ToLower(line.Nick), "admin") {
 			switch groups["cmd"] {
 			case "leave":
-				con.Part(line.Target(), fmt.Sprintf("Bye %s"))
+				con.Part(line.Target(), fmt.Sprintf("Bye %s", line.Nick))
 			case "quit":
 				con.Quit(fmt.Sprintf("Bye %s", line.Nick))
 			}
