@@ -1,0 +1,15 @@
+{
+	"name":        "zen",
+	"description": "Zen's from GitHub",
+	"enabled":     true,
+
+	"DenyUser": [
+		"Hanyuu-sama",
+		"tickleweasel",
+		"edzilla",
+		"Saki`Senhime",
+		"Fuuko",
+		"Azumarill",
+		"Michiru"
+	]
+}

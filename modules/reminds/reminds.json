@@ -1,0 +1,16 @@
+{
+	"name":        "rem",
+	"description": "Set and receive remindes or alerts",
+	"enabled":     true,
+
+	"DenyChan": ["#r/a/dio"],
+	"DenyUser": [
+		"Hanyuu-sama",
+		"tickleweasel",
+		"edzilla",
+		"Saki`Senhime",
+		"Fuuko",
+		"Azumarill",
+		"Michiru"
+	]
+}

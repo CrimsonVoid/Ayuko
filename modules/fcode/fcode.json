@@ -1,0 +1,15 @@
+{
+	"name":        "fcode",
+	"description": "Save and share friend codes",
+	"enabled":     true,
+
+	"DenyUser": [
+		"Hanyuu-sama",
+		"tickleweasel",
+		"edzilla",
+		"Saki`Senhime",
+		"Fuuko",
+		"Azumarill",
+		"Michiru"
+	]
+}
