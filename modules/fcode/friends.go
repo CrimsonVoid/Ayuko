@@ -11,6 +11,7 @@ import (
 )
 
 type friendCode struct {
+	Nid       string
 	Wii, Wiiu string
 	Ds, Ds3   string
 	Live, Psn string
@@ -95,6 +96,7 @@ func (self *fcManager) Strings() map[string]*friendCode {
 		fcMap[nick] = &friendCode{
 			Wii:   fCode.Wii,
 			Wiiu:  fCode.Wiiu,
+			Nid:   fCode.Nid,
 			Ds:    fCode.Ds,
 			Ds3:   fCode.Ds3,
 			Live:  fCode.Live,
@@ -125,9 +127,12 @@ func (self *fcManager) Add(nick, system, code string) bool {
 	case "wii":
 		re = regexp.MustCompile(`\d{4}-\d{4}-\d{4}-\d{4}$`)
 		save = &fCode.Wii
-	case "wiiu", "nid":
+	case "wiiu":
 		re = regexp.MustCompile(`^.{6,16}\s?$`)
 		save = &fCode.Wiiu
+	case "nid":
+		re = regexp.MustCompile(`^.{6,16}\s?$`)
+		save = &fCode.Nid
 	case "ds":
 		re = regexp.MustCompile(`^\d{4}-\d{4}-\d{4}\s?$`)
 		save = &fCode.Ds
@@ -174,8 +179,10 @@ func (self *fcManager) Remove(nick, system string) error {
 	switch system {
 	case "wii":
 		fCode.Wii = ""
-	case "wiiu", "nid":
+	case "wiiu":
 		fCode.Wiiu = ""
+	case "nid":
+		fCode.Nid = ""
 	case "ds":
 		fCode.Ds = ""
 	case "3ds":
@@ -215,6 +222,9 @@ func (self *fcManager) Get(nick string) (map[string]string, error) {
 	if c := fCode.Wiiu; c != "" {
 		codes["WiiU"] = c
 	}
+	if c := fCode.Nid; c != "" {
+		codes["NID"] = c
+	}
 	if c := fCode.Ds; c != "" {
 		codes["DS"] = c
 	}
@@ -249,8 +259,10 @@ func (self *fcManager) GetSystem(system string) map[string]string {
 		switch system {
 		case "wii":
 			code = fCode.Wii
-		case "wiiu", "nid":
+		case "wiiu":
 			code = fCode.Wiiu
+		case "nid":
+			code = fCode.Nid
 		case "ds":
 			code = fCode.Ds
 		case "3ds":

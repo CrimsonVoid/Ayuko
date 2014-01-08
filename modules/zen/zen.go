@@ -49,11 +49,11 @@ func init() {
 		return nil
 	}
 
-	Module.Register(".zen", module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
+	Module.Register(".zen", module.PRIVMSG, func(line *irc.Line) {
 		zen := <-zenChan
 
 		Module.Logger.Infoln(fmt.Sprintf("%s - %s", line.Target(), zen))
-		con.Privmsg(line.Target(), zen)
+		Module.Conn.Privmsg(line.Target(), zen)
 	})
 
 	Module.Disconnect = func() error {

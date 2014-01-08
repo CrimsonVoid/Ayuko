@@ -29,7 +29,7 @@ func registerCommands() {
 }
 
 func regComAddRemind() {
-	Module.RegisterRegexp(remindsR, module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
+	Module.RegisterRegexp(remindsR, module.PRIVMSG, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(remindsR, lineText)
 
@@ -39,7 +39,7 @@ func regComAddRemind() {
 		} else if err != nil {
 			Module.Logger.Errorf("Could not convert `%v` to an int: %v\n  %v\n",
 				groups["time"], err, line)
-			con.Notice(line.Nick, "I'm sorry, but there was an error parsing your remind")
+			Module.Conn.Notice(line.Nick, "I'm sorry, but there was an error parsing your remind")
 
 			return
 		}
@@ -53,7 +53,7 @@ func regComAddRemind() {
 		if err != nil {
 			Module.Logger.Errorf("Error parsing remind: %v\n  %v\n",
 				err, lineText)
-			con.Notice(line.Nick, "I'm sorry, but there was an error parsing your remind")
+			Module.Conn.Notice(line.Nick, "I'm sorry, but there was an error parsing your remind")
 
 			return
 		}
@@ -66,7 +66,7 @@ func regComAddRemind() {
 
 		reminds.Add(ChanNick{strings.ToLower(line.Target()), to}, rem)
 
-		con.Privmsg(line.Target(), fmt.Sprintf("Okay! I'll remind %v about that in %v (%v).",
+		Module.Conn.Privmsg(line.Target(), fmt.Sprintf("Okay! I'll remind %v about that in %v (%v).",
 			groups["to"], rem.Expire.Sub(rem.Set), rem.Expire.Format(timeFormat)))
 	})
 }
@@ -74,12 +74,12 @@ func regComAddRemind() {
 func regComGetRemind() {
 	re := regexp.MustCompile(`.*`)
 
-	Module.RegisterRegexp(re, module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
+	Module.RegisterRegexp(re, module.PRIVMSG, func(line *irc.Line) {
 		rems := reminds.GetExpired(ChanNick{strings.ToLower(line.Target()),
 			strings.ToLower(line.Nick)})
 
 		for _, rem := range rems {
-			con.Privmsg(line.Target(), fmt.Sprintf("Oh %s! %s wanted me to remind you %s",
+			Module.Conn.Privmsg(line.Target(), fmt.Sprintf("Oh %s! %s wanted me to remind you %s",
 				line.Nick, rem.From, rem.Message))
 		}
 	})

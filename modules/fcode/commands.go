@@ -36,7 +36,7 @@ func registerCommands() {
 }
 
 func regComAdd() {
-	Module.RegisterRegexp(fcAdd, module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
+	Module.RegisterRegexp(fcAdd, module.PRIVMSG, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcAdd, lineText)
 
@@ -44,20 +44,20 @@ func regComAdd() {
 		if !ok {
 			Module.Logger.Errorf("fcManager.Add(%v, %v, %v)\n  Line: %v\n",
 				strings.ToLower(line.Nick), groups["system"], groups["fcode"], lineText)
-			con.Notice(line.Nick, "There was a problem adding you.")
+			Module.Conn.Notice(line.Nick, "There was a problem adding you.")
 
 			return
 		}
 
 		Module.Logger.Infof("Added friendCode[%v].%v = %v\n",
 			groups["nick"], groups["system"], groups["fcode"])
-		con.Notice(line.Nick,
+		Module.Conn.Notice(line.Nick,
 			fmt.Sprintf("Saved friend code %v for %v\n", groups["fcode"], groups["system"]))
 	})
 }
 
 func regComRem() {
-	Module.RegisterRegexp(fcRem, module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
+	Module.RegisterRegexp(fcRem, module.PRIVMSG, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcRem, lineText)
 
@@ -65,7 +65,7 @@ func regComRem() {
 		if err != nil {
 			Module.Logger.Errorf("fcManager.Remove(%v, %v) error: %v\n  Line: %v\n",
 				strings.ToLower(line.Nick), groups["system"], err, lineText)
-			con.Notice(line.Nick, err.Error())
+			Module.Conn.Notice(line.Nick, err.Error())
 
 			return
 		}
@@ -73,16 +73,16 @@ func regComRem() {
 		switch groups["system"] {
 		case "*":
 			Module.Logger.Infof("Deleted friendCode[%v]\n", groups["nick"])
-			con.Notice(line.Nick, "Removed you from the database")
+			Module.Conn.Notice(line.Nick, "Removed you from the database")
 		default:
 			Module.Logger.Infof("Removed friendCode[%v].%v = ''\n", groups["nick"], groups["system"])
-			con.Notice(line.Nick, fmt.Sprintf("Removed nick for %s", groups["system"]))
+			Module.Conn.Notice(line.Nick, fmt.Sprintf("Removed nick for %s", groups["system"]))
 		}
 	})
 }
 
 func regComGet() {
-	Module.RegisterRegexp(fcGet, module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
+	Module.RegisterRegexp(fcGet, module.PRIVMSG, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcGet, lineText)
 
@@ -90,7 +90,7 @@ func regComGet() {
 		if err != nil {
 			Module.Logger.Errorf("fcManager.Get(%v): %v\n  Line: %v\n",
 				groups["nick"], err, lineText)
-			con.Notice(line.Nick,
+			Module.Conn.Notice(line.Nick,
 				fmt.Sprintf("Sorry I could not find %v in the database", groups["nick"]))
 
 			return
@@ -103,21 +103,21 @@ func regComGet() {
 
 		switch groups["mode"] {
 		case PRIV:
-			con.Notice(line.Nick, codes)
+			Module.Conn.Notice(line.Nick, codes)
 		case PUBLIC:
-			con.Privmsg(line.Target(), codes)
+			Module.Conn.Privmsg(line.Target(), codes)
 		}
 	})
 }
 
 func regComGetSystem() {
-	Module.RegisterRegexp(fcList, module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
+	Module.RegisterRegexp(fcList, module.PRIVMSG, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcList, lineText)
 
 		sysMap := fCodes.GetSystem(groups["system"])
 		if len(sysMap) == 0 {
-			con.Notice(line.Nick,
+			Module.Conn.Notice(line.Nick,
 				fmt.Sprintf("No one has saved any codes for %v :<", groups["system"]))
 		}
 
@@ -128,16 +128,16 @@ func regComGetSystem() {
 
 		switch groups["mode"] {
 		case PRIV:
-			con.Notice(line.Nick, codes)
+			Module.Conn.Notice(line.Nick, codes)
 		case PUBLIC:
-			con.Privmsg(line.Target(), codes)
+			Module.Conn.Privmsg(line.Target(), codes)
 		}
 	})
 }
 
 func regComFcHelp() {
-	Module.RegisterRegexp(fcHelp, module.PRIVMSG, func(con *irc.Conn, line *irc.Line) {
-		con.Notice(line.Nick, FcHelp())
+	Module.RegisterRegexp(fcHelp, module.PRIVMSG, func(line *irc.Line) {
+		Module.Conn.Notice(line.Nick, FcHelp())
 	})
 }
 
