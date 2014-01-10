@@ -29,7 +29,7 @@ func registerCommands() {
 }
 
 func regComAddRemind() {
-	Module.RegisterRegexp(remindsR, module.PRIVMSG, func(line *irc.Line) {
+	Module.RegisterRegexp(module.PRIVMSG, remindsR, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(remindsR, lineText)
 
@@ -74,7 +74,7 @@ func regComAddRemind() {
 func regComGetRemind() {
 	re := regexp.MustCompile(`.*`)
 
-	Module.RegisterRegexp(re, module.PRIVMSG, func(line *irc.Line) {
+	Module.RegisterRegexp(module.PRIVMSG, re, func(line *irc.Line) {
 		rems := reminds.GetExpired(ChanNick{strings.ToLower(line.Target()),
 			strings.ToLower(line.Nick)})
 

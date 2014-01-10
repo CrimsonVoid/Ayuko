@@ -36,7 +36,7 @@ func registerCommands() {
 }
 
 func regComAdd() {
-	Module.RegisterRegexp(fcAdd, module.PRIVMSG, func(line *irc.Line) {
+	Module.RegisterRegexp(module.PRIVMSG, fcAdd, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcAdd, lineText)
 
@@ -57,7 +57,7 @@ func regComAdd() {
 }
 
 func regComRem() {
-	Module.RegisterRegexp(fcRem, module.PRIVMSG, func(line *irc.Line) {
+	Module.RegisterRegexp(module.PRIVMSG, fcRem, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcRem, lineText)
 
@@ -82,7 +82,7 @@ func regComRem() {
 }
 
 func regComGet() {
-	Module.RegisterRegexp(fcGet, module.PRIVMSG, func(line *irc.Line) {
+	Module.RegisterRegexp(module.PRIVMSG, fcGet, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcGet, lineText)
 
@@ -111,7 +111,7 @@ func regComGet() {
 }
 
 func regComGetSystem() {
-	Module.RegisterRegexp(fcList, module.PRIVMSG, func(line *irc.Line) {
+	Module.RegisterRegexp(module.PRIVMSG, fcList, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcList, lineText)
 
@@ -136,7 +136,7 @@ func regComGetSystem() {
 }
 
 func regComFcHelp() {
-	Module.RegisterRegexp(fcHelp, module.PRIVMSG, func(line *irc.Line) {
+	Module.RegisterRegexp(module.PRIVMSG, fcHelp, func(line *irc.Line) {
 		Module.Conn.Notice(line.Nick, FcHelp())
 	})
 }

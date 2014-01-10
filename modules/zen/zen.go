@@ -49,7 +49,7 @@ func init() {
 		return nil
 	}
 
-	Module.Register(".zen", module.PRIVMSG, func(line *irc.Line) {
+	Module.Register(module.PRIVMSG, ".zen", func(line *irc.Line) {
 		zen := <-zenChan
 
 		Module.Logger.Infoln(fmt.Sprintf("%s - %s", line.Target(), zen))
