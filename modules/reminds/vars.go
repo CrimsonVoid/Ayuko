@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	timeFormat = "02 Jan 2006 15:04 MST"
+	timeFormat   = "02 Jan 2006 15:04 MST"
+	pprintFormat = "02 Jan 2006 15:04"
 
 	nickR     = `(?P<to>[\w{}\[\]^|` + "`" + `-]+)`
 	timeR     = `(?P<time>\d+)`

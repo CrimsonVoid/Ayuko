@@ -30,7 +30,7 @@ func registerCommands() {
 
 func regComAddRemind() {
 	Module.RegisterRegexp(module.PRIVMSG, remindsR, func(line *irc.Line) {
-		lineText := strings.ToLower(line.Text())
+		lineText := line.Text()
 		groups, _ := matchGroups(remindsR, lineText)
 
 		timeN, err := strconv.Atoi(groups["time"])
@@ -87,7 +87,7 @@ func regComGetRemind() {
 
 func regConsPrintRems() error {
 	err := Module.Console.Register("list rems", func(string) {
-		log.Println(reminds.Strings())
+		log.Println(reminds.String())
 	})
 
 	return err

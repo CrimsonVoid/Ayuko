@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/crimsonvoid/console"
 )
 
 type Message struct {
@@ -207,7 +210,57 @@ func (self *Reminds) GetExpired(key ChanNick) []*Message {
 	return expiredList
 }
 
-func (self *Reminds) Strings() map[ChanNick][]Message {
+func (self *Reminds) String() string {
+	self.mut.RLock()
+	defer self.mut.RUnlock()
+
+	now := time.Now().UTC()
+	out := ""
+	remMap := make(map[string]map[string][]string)
+
+	for chnNick, msgList := range self.msgMap {
+		nickMap, ok := remMap[chnNick.Channel]
+		if !ok {
+			nickMap = make(map[string][]string)
+		}
+
+		nickList, ok := nickMap[chnNick.Nick]
+		if !ok {
+			nickList = make([]string, 0, 5)
+		}
+
+		for _, msg := range msgList {
+			// Green - Expired
+			// Red   - Active
+
+			statusColor := console.FgGreen
+			if now.Before(msg.Expire) {
+				statusColor = console.FgRed
+			}
+
+			nickList = append(nickList, fmt.Sprintf("%v%v%v - %v: %v",
+				statusColor, msg.Expire.Format(pprintFormat), console.Reset,
+				msg.From, msg.Message))
+		}
+
+		nickMap[chnNick.Nick] = nickList
+		remMap[chnNick.Channel] = nickMap
+	}
+
+	for chn, nickMap := range remMap {
+		out += fmt.Sprintf("%v\n", chn)
+
+		for nick, rems := range nickMap {
+			out += fmt.Sprintf("  %v\n    %v\n", nick, strings.Join(rems, "\n    "))
+		}
+
+		out += "\n"
+	}
+
+	return out
+}
+
+func (self *Reminds) Copy() map[ChanNick][]Message {
 	self.mut.RLock()
 	defer self.mut.RUnlock()
 
