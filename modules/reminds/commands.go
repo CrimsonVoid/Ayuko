@@ -33,6 +33,9 @@ func regComAddRemind() {
 		lineText := line.Text()
 		groups, _ := matchGroups(remindsR, lineText)
 
+		groups["to"] = strings.ToLower(groups["to"])
+		groups["duration"] = strings.ToLower(groups["duration"])
+
 		timeN, err := strconv.Atoi(groups["time"])
 		if groups["time"] == "" {
 			timeN = 0
@@ -86,7 +89,7 @@ func regComGetRemind() {
 }
 
 func regConsPrintRems() error {
-	err := Module.Console.Register("list rems", func(string) {
+	err := Module.Console.Register("list", func(string) {
 		log.Println(reminds.String())
 	})
 

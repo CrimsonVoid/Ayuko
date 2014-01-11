@@ -23,13 +23,13 @@ const (
 )
 
 var (
-	remindsR = regexp.MustCompile(fmt.Sprintf("^-remind %v (in )?(%v ?%v )?(that )?%v$",
+	remindsR = regexp.MustCompile(fmt.Sprintf("(?i)^-remind %v (in )?(%v ?%v )?(that )?%v$",
 		nickR,
 		timeR,
 		durationR,
 		`(?P<message>.*)`))
 
-	alertsR = regexp.MustCompile(fmt.Sprintf("^-(hi(gh)?light|alert) %v (in )?(%v ?%v )?(that )?%v$",
+	alertsR = regexp.MustCompile(fmt.Sprintf("(?i)^-(hi(gh)?light|alert) %v (in )?(%v ?%v )?(that )?%v$",
 		nickR,
 		timeR,
 		durationR,

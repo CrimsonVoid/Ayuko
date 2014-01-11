@@ -19,12 +19,12 @@ const (
 )
 
 var (
-	fcAdd = regexp.MustCompile(fmt.Sprintf(`^%vfcode add %v (?P<fcode>.*)`, modeR, systemsR))
-	fcRem = regexp.MustCompile(fmt.Sprintf(`^%vfcode rem %v$`,
+	fcAdd = regexp.MustCompile(fmt.Sprintf(`(?i)^%vfcode add %v (?P<fcode>.*)`, modeR, systemsR))
+	fcRem = regexp.MustCompile(fmt.Sprintf(`(?i)^%vfcode rem %v$`,
 		modeR, `(?P<system>`+systemsL+`|\*)`))
-	fcGet  = regexp.MustCompile(fmt.Sprintf(`^%vfcode %v\s?$`, modeR, nickR))
-	fcList = regexp.MustCompile(fmt.Sprintf(`^%vfcode list %v$`, modeR, systemsR))
-	fcHelp = regexp.MustCompile(fmt.Sprintf(`^%vfcodehelp$`, modeR))
+	fcGet  = regexp.MustCompile(fmt.Sprintf(`(?i)^%vfcode %v\s?$`, modeR, nickR))
+	fcList = regexp.MustCompile(fmt.Sprintf(`(?i)^%vfcode list %v$`, modeR, systemsR))
+	fcHelp = regexp.MustCompile(fmt.Sprintf(`(?i)^%vfcodehelp$`, modeR))
 
 	fCodes = NewfcManager()
 )

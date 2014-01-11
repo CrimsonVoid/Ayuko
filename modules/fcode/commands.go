@@ -24,21 +24,25 @@ func registerCommands() {
 	regComGet()
 	regComGetSystem()
 
-	if err := regConsSave(); err != nil {
-		panic(err)
+	errs := []error{
+		regConsSave(),
+		regConsLoad(),
+		regConsList(),
 	}
-	if err := regConsLoad(); err != nil {
-		panic(err)
-	}
-	if err := regConsList(); err != nil {
-		panic(err)
+
+	for _, err := range errs {
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
 func regComAdd() {
 	Module.RegisterRegexp(module.PRIVMSG, fcAdd, func(line *irc.Line) {
-		lineText := strings.ToLower(line.Text())
+		lineText := line.Text()
 		groups, _ := matchGroups(fcAdd, lineText)
+
+		groups["system"] = strings.ToLower(groups["system"])
 
 		ok := fCodes.Add(strings.ToLower(line.Nick), groups["system"], groups["fcode"])
 		if !ok {
@@ -58,8 +62,10 @@ func regComAdd() {
 
 func regComRem() {
 	Module.RegisterRegexp(module.PRIVMSG, fcRem, func(line *irc.Line) {
-		lineText := strings.ToLower(line.Text())
+		lineText := line.Text()
 		groups, _ := matchGroups(fcRem, lineText)
+
+		groups["system"] = strings.ToLower(groups["system"])
 
 		err := fCodes.Remove(strings.ToLower(line.Nick), groups["system"])
 		if err != nil {
@@ -112,8 +118,10 @@ func regComGet() {
 
 func regComGetSystem() {
 	Module.RegisterRegexp(module.PRIVMSG, fcList, func(line *irc.Line) {
-		lineText := strings.ToLower(line.Text())
+		lineText := line.Text()
 		groups, _ := matchGroups(fcList, lineText)
+
+		groups["system"] = strings.ToLower(groups["system"])
 
 		sysMap := fCodes.GetSystem(groups["system"])
 		if len(sysMap) == 0 {
