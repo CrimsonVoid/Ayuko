@@ -233,13 +233,13 @@ func (self *Reminds) String() string {
 			// Green - Expired
 			// Red   - Active
 
-			statusColor := console.FgGreen
+			statusColor := console.C_FgGreen
 			if now.Before(msg.Expire) {
-				statusColor = console.FgRed
+				statusColor = console.C_FgRed
 			}
 
 			nickList = append(nickList, fmt.Sprintf("%v%v%v - %v: %v",
-				statusColor, msg.Expire.Format(pprintFormat), console.Reset,
+				statusColor, msg.Expire.Format(pprintFormat), console.C_Reset,
 				msg.From, msg.Message))
 		}
 
