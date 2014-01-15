@@ -197,14 +197,7 @@ func regConsLoad() error {
 
 func regConsList() error {
 	err := Module.Console.Register("list", func(s string) {
-		fcMap := fCodes.Strings()
-
-		out := ""
-		for nick, fCode := range fcMap {
-			out += fmt.Sprintf("%-25v %#v\n", nick, fCode)
-		}
-
-		log.Print(out)
+		log.Print(fCodes.String())
 	})
 
 	return err

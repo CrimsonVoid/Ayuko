@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -86,24 +87,72 @@ func (self *fcManager) Save(fileName string) error {
 	return codesEnc.Encode(self.friendCodes)
 }
 
-func (self *fcManager) Strings() map[string]*friendCode {
+func (self *fcManager) String() string {
 	self.mut.RLock()
 	defer self.mut.RUnlock()
 
-	fcMap := make(map[string]*friendCode, len(self.friendCodes))
+	out := ""
+	maxNickLen := 0
+
+	for nick, _ := range self.friendCodes {
+		if len(nick) > maxNickLen {
+			maxNickLen = len(nick)
+		}
+	}
 
 	for nick, fCode := range self.friendCodes {
-		fcMap[nick] = &friendCode{
-			Wii:   fCode.Wii,
-			Wiiu:  fCode.Wiiu,
-			Nid:   fCode.Nid,
-			Ds:    fCode.Ds,
-			Ds3:   fCode.Ds3,
-			Live:  fCode.Live,
-			Psn:   fCode.Psn,
-			Steam: fCode.Steam,
-			Bnet:  fCode.Bnet,
+		if len(nick) > maxNickLen {
+			maxNickLen = len(nick)
 		}
+
+		out += fmt.Sprintf("%"+strconv.Itoa(maxNickLen+2)+"v: %v\n", nick, fCode.String())
+	}
+
+	return out
+}
+
+func (self *friendCode) String() string {
+	out := ""
+
+	if self.Nid != "" {
+		out += fmt.Sprintf("(Nid: %v) ", self.Nid)
+	}
+	if self.Wii != "" {
+		out += fmt.Sprintf("(Wii: %v) ", self.Wii)
+	}
+	if self.Wiiu != "" {
+		out += fmt.Sprintf("(WiiU: %v) ", self.Wiiu)
+	}
+	if self.Ds != "" {
+		out += fmt.Sprintf("(DS: %v) ", self.Ds)
+	}
+	if self.Ds3 != "" {
+		out += fmt.Sprintf("(3DS: %v) ", self.Ds3)
+	}
+	if self.Live != "" {
+		out += fmt.Sprintf("(Live: %v) ", self.Live)
+	}
+	if self.Psn != "" {
+		out += fmt.Sprintf("(PSN: %v) ", self.Psn)
+	}
+	if self.Steam != "" {
+		out += fmt.Sprintf("(Steam: %v) ", self.Steam)
+	}
+	if self.Bnet != "" {
+		out += fmt.Sprintf("(Bnet: %v) ", self.Bnet)
+	}
+
+	return out
+}
+
+func (self *fcManager) Strings() map[string]string {
+	self.mut.RLock()
+	defer self.mut.RUnlock()
+
+	fcMap := make(map[string]string, len(self.friendCodes))
+
+	for nick, fCode := range self.friendCodes {
+		fcMap[nick] = fCode.String()
 	}
 
 	return fcMap
