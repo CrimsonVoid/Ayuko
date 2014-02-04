@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/crimsonvoid/irclib"
+	"github.com/crimsonvoid/irclib/module"
 
 	"github.com/crimsonvoid/ayuko/modules/fcode"
 	"github.com/crimsonvoid/ayuko/modules/reminds"
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+	module.SetLogDir("./data/logs/")
+
 	m, err := irclib.New("config.json")
 	if err != nil {
 		panic(err)

@@ -1,6 +1,7 @@
 {
 	"name":        "zen",
 	"description": "Zen's from GitHub",
+	"logdir":      "./data/logs/",
 	"enabled":     true,
 
 	"DenyUser": [

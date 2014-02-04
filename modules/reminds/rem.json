@@ -1,6 +1,7 @@
 {
 	"name":        "rem",
 	"description": "Set and receive remindes or alerts",
+	"logdir":      "./data/logs/",
 	"enabled":     true,
 
 	"DenyChan": ["#r/a/dio"],
