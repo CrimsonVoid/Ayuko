@@ -1,0 +1,17 @@
+{
+	"name":        "url",
+	"description": "Parse URL titles",
+	"logdir":      "./data/logs/",
+	"enabled":     true,
+
+	"DenyChan": ["#r/a/dio"],
+	"DenyUser": [
+		"Hanyuu-sama",
+		"tickleweasel",
+		"edzilla",
+		"Saki`Senhime",
+		"Fuuko",
+		"Azumarill",
+		"Michiru"
+	]
+}
