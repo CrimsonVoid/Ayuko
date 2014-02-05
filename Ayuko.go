@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/crimsonvoid/irclib"
 	"github.com/crimsonvoid/irclib/module"
 
@@ -11,9 +13,12 @@ import (
 )
 
 func main() {
+	configFile := flag.String("config", "config.json", "Set a config file")
+	flag.Parse()
+
 	module.SetLogDir("./data/logs/")
 
-	m, err := irclib.New("config.json")
+	m, err := irclib.New(*configFile)
 	if err != nil {
 		panic(err)
 	}
