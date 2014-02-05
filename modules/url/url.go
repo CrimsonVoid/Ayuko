@@ -8,8 +8,6 @@ import (
 	"github.com/crimsonvoid/irclib/module"
 )
 
-var Module *module.Module
-
 func init() {
 	_, file, _, _ := runtime.Caller(0)
 	base := filepath.Base(file)

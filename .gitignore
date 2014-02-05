@@ -25,5 +25,6 @@ _testmain.go
 logs/
 ./codes/
 ./reminds/
+./data/
 *.gob
 config.json

@@ -83,8 +83,8 @@ func (self *Reminds) Start() error {
 func (self *Reminds) Exit() error {
 	timeStamp := time.Now().UTC()
 
-	timedPath := fmt.Sprintf("reminds/%v-%v", timeStamp.Year(), timeStamp.Month())
-	if err := os.MkdirAll(timedPath, 755); err != nil {
+	timedPath := fmt.Sprintf("%v-%02[2]d %[2]v", timeStamp.Year(), timeStamp.Month())
+	if err := os.MkdirAll(dataDir+timedPath, 755); err != nil {
 		return err
 	}
 	timedFileName := fmt.Sprintf("%v/%02v_(%02v.%02v).gob",
@@ -101,7 +101,7 @@ func (self *Reminds) Exit() error {
 }
 
 func (self *Reminds) Save(fileName string) error {
-	file, err := os.Create(fileName)
+	file, err := os.Create(dataDir + fileName)
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func (self *Reminds) Save(fileName string) error {
 }
 
 func (self *Reminds) Load(fileName string) error {
-	file, err := os.Open(fileName)
+	file, err := os.Open(dataDir + fileName)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {

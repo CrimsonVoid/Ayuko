@@ -3,9 +3,13 @@ package reminds
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/crimsonvoid/irclib/module"
 )
 
 const (
+	dataDir = "./data/reminds/"
+
 	timeFormat   = "02 Jan 2006 15:04 MST"
 	pprintFormat = "02 Jan 2006 15:04"
 
@@ -39,4 +43,6 @@ var (
 var (
 	reminds = NewReminds()
 	alerts  = newAlerts()
+
+	Module *module.Module
 )

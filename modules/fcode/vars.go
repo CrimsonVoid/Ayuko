@@ -29,6 +29,10 @@ var (
 	fCodes = NewfcManager()
 )
 
+const (
+	dataDir = "./data/fcode/"
+)
+
 var (
 	Module *module.Module
 )
