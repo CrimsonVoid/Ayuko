@@ -23,6 +23,7 @@ func registerCommands() {
 	regComRem()
 	regComGet()
 	regComGetSystem()
+	regComFcHelp()
 
 	errs := []error{
 		regConsSave(),
