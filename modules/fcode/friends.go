@@ -95,17 +95,19 @@ func (self *fcManager) String() string {
 	maxNickLen := 0
 
 	for nick, _ := range self.friendCodes {
-		if len(nick) > maxNickLen {
-			maxNickLen = len(nick)
+		if nickLen := len(nick); nickLen > maxNickLen {
+			maxNickLen = nickLen
 		}
 	}
+
+	outFmt := "%" + strconv.Itoa(maxNickLen+2) + "v: %v\n"
 
 	for nick, fCode := range self.friendCodes {
 		if len(nick) > maxNickLen {
 			maxNickLen = len(nick)
 		}
 
-		out += fmt.Sprintf("%"+strconv.Itoa(maxNickLen+2)+"v: %v\n", nick, fCode.String())
+		out += fmt.Sprintf(outFmt, nick, fCode.String())
 	}
 
 	return out
@@ -205,8 +207,7 @@ func (self *fcManager) Add(nick, system, code string) bool {
 		return false
 	}
 
-	res := re.FindStringSubmatch(code)
-	if res == nil {
+	if re.FindStringSubmatch(code) == nil {
 		return false
 	}
 
@@ -255,7 +256,7 @@ func (self *fcManager) Remove(nick, system string) error {
 	return nil
 }
 
-func (self *fcManager) Get(nick string) (map[string]string, error) {
+func (self *fcManager) GetUser(nick string) (map[string]string, error) {
 	self.mut.RLock()
 	defer self.mut.RUnlock()
 

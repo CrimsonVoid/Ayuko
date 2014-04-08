@@ -15,7 +15,6 @@ func init() {
 }
 
 func registerCommands() {
-	// TODO - Write logs
 	Module.Preconnect = fCodes.Start
 	Module.Disconnect = fCodes.Exit
 
@@ -25,14 +24,14 @@ func registerCommands() {
 	regComGetSystem()
 	regComFcHelp()
 
-	errs := []error{
-		regConsSave(),
-		regConsLoad(),
-		regConsList(),
+	errFns := []func() error{
+		regConsSave,
+		regConsLoad,
+		regConsList,
 	}
 
-	for _, err := range errs {
-		if err != nil {
+	for _, errFn := range errFns {
+		if err := errFn(); err != nil {
 			panic(err)
 		}
 	}
@@ -47,7 +46,7 @@ func regComAdd() {
 
 		ok := fCodes.Add(strings.ToLower(line.Nick), groups["system"], groups["fcode"])
 		if !ok {
-			Module.Logger.Errorf("fcManager.Add(%v, %v, %v)\n  Line: %v\n",
+			Module.Logger.Errorf("Add(%v, %v, %v)\n  Line: %v\n",
 				strings.ToLower(line.Nick), groups["system"], groups["fcode"], lineText)
 			Module.Conn.Notice(line.Nick, "There was a problem adding you.")
 
@@ -70,7 +69,7 @@ func regComRem() {
 
 		err := fCodes.Remove(strings.ToLower(line.Nick), groups["system"])
 		if err != nil {
-			Module.Logger.Errorf("fcManager.Remove(%v, %v) error: %v\n  Line: %v\n",
+			Module.Logger.Errorf("Remove(%v, %v) error: %v\n  Line: %v\n",
 				strings.ToLower(line.Nick), groups["system"], err, lineText)
 			Module.Conn.Notice(line.Nick, err.Error())
 
@@ -82,7 +81,7 @@ func regComRem() {
 			Module.Logger.Infof("Deleted friendCode[%v]\n", groups["nick"])
 			Module.Conn.Notice(line.Nick, "Removed you from the database")
 		default:
-			Module.Logger.Infof("Removed friendCode[%v].%v = ''\n", groups["nick"], groups["system"])
+			Module.Logger.Infof("Removed friendCode[%v].%v\n", groups["nick"], groups["system"])
 			Module.Conn.Notice(line.Nick, fmt.Sprintf("Removed nick for %s", groups["system"]))
 		}
 	})
@@ -93,9 +92,9 @@ func regComGet() {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcGet, lineText)
 
-		fcMap, err := fCodes.Get(groups["nick"])
+		fcMap, err := fCodes.GetUser(groups["nick"])
 		if err != nil {
-			Module.Logger.Errorf("fcManager.Get(%v): %v\n  Line: %v\n",
+			Module.Logger.Errorf("GetUser(%v): %v\n  Line: %v\n",
 				groups["nick"], err, lineText)
 			Module.Conn.Notice(line.Nick,
 				fmt.Sprintf("Sorry I could not find %v in the database", groups["nick"]))

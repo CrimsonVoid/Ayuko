@@ -39,43 +39,6 @@ func NewReminds() Reminds {
 	return rems
 }
 
-func ParseMessage(from, duration, msg string, timeN int) (*Message, error) {
-	now := time.Now().UTC()
-	var expire time.Time
-
-	switch duration {
-	case "":
-		expire = now.Add(time.Duration(timeN))
-	case "s", "second", "seconds":
-		expire = now.Add(time.Second * time.Duration(timeN))
-	case "m", "minute", "minutes":
-		expire = now.Add(time.Minute * time.Duration(timeN))
-	case "h", "hour", "hours":
-		expire = now.Add(time.Hour * time.Duration(timeN))
-	case "d", "day", "days":
-		expire = now.Add(time.Hour * 24 * time.Duration(timeN))
-	case "mo", "month", "months": // 1 month == 30 days
-		expire = now.Add(time.Hour * 24 * 30 * time.Duration(timeN))
-	case "y", "year", "years": // 8765.81 hours in a year according to Google
-		expire = now.Add(time.Hour * 8766 * time.Duration(timeN))
-	default:
-		// Module.Logger.Errorf("Error parsing duration: `%v`", duration)
-
-		return nil, fmt.Errorf("Error parsing duration: `%v`", duration)
-	}
-
-	remind := &Message{
-		From:    from,
-		Message: msg,
-
-		Set:      now,
-		Expire:   expire,
-		duration: time.After(expire.Sub(now)),
-	}
-
-	return remind, nil
-}
-
 func (self *Reminds) Start() error {
 	return self.Load("reminds.gob")
 }
@@ -140,6 +103,43 @@ func (self *Reminds) Load(fileName string) error {
 	return err
 }
 
+func ParseMessage(from, duration, msg string, timeN int) (*Message, error) {
+	now := time.Now().UTC()
+	var expire time.Time
+
+	switch duration {
+	case "":
+		expire = now.Add(time.Duration(timeN))
+	case "s", "second", "seconds":
+		expire = now.Add(time.Second * time.Duration(timeN))
+	case "m", "minute", "minutes":
+		expire = now.Add(time.Minute * time.Duration(timeN))
+	case "h", "hour", "hours":
+		expire = now.Add(time.Hour * time.Duration(timeN))
+	case "d", "day", "days":
+		expire = now.Add(time.Hour * 24 * time.Duration(timeN))
+	case "mo", "month", "months": // 1 month == 30 days
+		expire = now.Add(time.Hour * 24 * 30 * time.Duration(timeN))
+	case "y", "year", "years": // 8765.81 hours in a year according to Google
+		expire = now.Add(time.Hour * 8766 * time.Duration(timeN))
+	default:
+		// Module.Logger.Errorf("Error parsing duration: `%v`", duration)
+
+		return nil, fmt.Errorf("Error parsing duration: `%v`", duration)
+	}
+
+	remind := &Message{
+		From:    from,
+		Message: msg,
+
+		Set:      now,
+		Expire:   expire,
+		duration: time.After(expire.Sub(now)),
+	}
+
+	return remind, nil
+}
+
 func (self *Reminds) Add(key ChanNick, msg *Message) {
 	if msg.duration == nil {
 		msg.duration = time.After(msg.Expire.Sub(msg.Set))
@@ -153,37 +153,6 @@ func (self *Reminds) Add(key ChanNick, msg *Message) {
 	self.msgMap[key] = msgList
 }
 
-func (self *Reminds) Remove(key ChanNick, indices ...int) {
-	self.mut.Lock()
-	defer self.mut.Unlock()
-
-	sort.Ints(indices)
-
-	msgList, ok := self.msgMap[key]
-	if !ok {
-		return
-	}
-
-	elemRem := 0
-	for _, i := range indices {
-		i -= elemRem
-		if i >= len(msgList) {
-			continue
-		}
-
-		copy(msgList[i:], msgList[i+1:])
-		msgList = msgList[:len(msgList)-1]
-		elemRem++
-	}
-
-	if len(msgList) == 0 {
-		delete(self.msgMap, key)
-	} else {
-		self.msgMap[key] = msgList
-	}
-
-}
-
 func (self *Reminds) GetExpired(key ChanNick) []*Message {
 	self.mut.RLock()
 	defer self.mut.RUnlock()
@@ -191,12 +160,12 @@ func (self *Reminds) GetExpired(key ChanNick) []*Message {
 	expiredList := make([]*Message, 0, 5)
 	expiredInd := make([]int, 0, 5)
 
-	msgList, ok := self.msgMap[key]
+	msgLst, ok := self.msgMap[key]
 	if !ok {
 		return expiredList
 	}
 
-	for i, rem := range msgList {
+	for i, rem := range msgLst {
 		select {
 		case <-rem.duration:
 			expiredList = append(expiredList, rem)
@@ -205,7 +174,9 @@ func (self *Reminds) GetExpired(key ChanNick) []*Message {
 		}
 	}
 
-	go self.Remove(key, expiredInd...)
+	sort.Sort(msgList(expiredList))
+
+	go self.remove(key, expiredInd...)
 
 	return expiredList
 }
@@ -260,6 +231,38 @@ func (self *Reminds) String() string {
 	return out
 }
 
+func (self *Reminds) remove(key ChanNick, indices ...int) {
+	self.mut.Lock()
+	defer self.mut.Unlock()
+
+	msgList, ok := self.msgMap[key]
+	if !ok {
+		return
+	}
+
+	sort.Sort(sort.Reverse(sort.IntSlice(indices)))
+	listLen := len(msgList) - 1
+	lastIndex := -1
+
+	for _, i := range indices {
+		if i > listLen || i < 0 || lastIndex == i {
+			continue
+		}
+
+		msgList[i], msgList[listLen] = msgList[listLen], msgList[i]
+		msgList = msgList[:listLen]
+		listLen -= 1
+		lastIndex = i
+	}
+
+	if len(msgList) == 0 {
+		delete(self.msgMap, key)
+	} else {
+		self.msgMap[key] = msgList
+	}
+
+}
+
 func (self *Reminds) Copy() map[ChanNick][]Message {
 	self.mut.RLock()
 	defer self.mut.RUnlock()
@@ -284,4 +287,18 @@ func (self *Reminds) Copy() map[ChanNick][]Message {
 	}
 
 	return rems
+}
+
+type msgList []*Message
+
+func (self msgList) Len() int {
+	return len(self)
+}
+
+func (self msgList) Less(i, j int) bool {
+	return self[i].Expire.Before(self[j].Expire)
+}
+
+func (self msgList) Swap(i, j int) {
+	self[i], self[j] = self[j], self[i]
 }

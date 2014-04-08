@@ -55,8 +55,8 @@ type githubJSON struct {
 }
 
 var (
-	githubRegexp   = regexp.MustCompile(`github.com/(?P<user>.*?)/(?P<repo>.*?)($|/.*)`)
-	githubIORegexp = regexp.MustCompile(`(?P<user>.*)\.github.io/(?P<repo>.*?)($|/.*)`)
+	githubRegexp   = regexp.MustCompile(`github.com/(?P<user>.*?)/(?P<repo>.*?)($|/)`)
+	githubIORegexp = regexp.MustCompile(`(http(s)?://)?(?P<user>.*)\.github.io/(?P<repo>.*?)($|/)`)
 	githubAPI      = "https://api.github.com/repos/%v/%v"
 )
 

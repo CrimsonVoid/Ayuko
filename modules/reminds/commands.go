@@ -12,19 +12,20 @@ import (
 )
 
 func registerCommands() {
-	Module.Preconnect = func() error {
-		return reminds.Start()
-	}
-
-	Module.Disconnect = func() error {
-		return reminds.Exit()
-	}
+	Module.Preconnect = reminds.Start
+	Module.Disconnect = reminds.Exit
 
 	regComAddRemind()
 	regComGetRemind()
 
-	if err := regConsPrintRems(); err != nil {
-		panic(err)
+	errFns := []func() error{
+		regConsPrintRems,
+	}
+
+	for _, errFn := range errFns {
+		if err := errFn(); err != nil {
+			panic(err)
+		}
 	}
 }
 

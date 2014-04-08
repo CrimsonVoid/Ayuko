@@ -20,6 +20,5 @@ func init() {
 		panic(err)
 	}
 
-	// TODO - Remove empty map keys
 	registerCommands()
 }
