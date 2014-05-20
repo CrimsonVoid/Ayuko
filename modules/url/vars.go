@@ -69,8 +69,8 @@ type fourChJSON struct {
 }
 
 var (
-	fourChRegexp = regexp.MustCompile(`4chan\.org/(?P<board>[[:alnum:]]+)/res/(?P<thread>\d+)(#p(?P<post>\d+))?`)
-	fourChAPI    = "https://a.4cdn.org/%v/res/%v.json"
+	fourChRegexp = regexp.MustCompile(`4chan\.org/(?P<board>[[:alnum:]]+)/thread/(?P<thread>\d+)(#p(?P<post>\d+))?`)
+	fourChAPI    = "https://a.4cdn.org/%v/thread/%v.json"
 )
 
 // Reddit

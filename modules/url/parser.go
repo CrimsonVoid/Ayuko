@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"code.google.com/p/go.net/html"
+	"github.com/crimsonvoid/irclib"
 )
 
 func Parse(url string) (string, error) {
@@ -50,8 +51,8 @@ func ytVidParser(re *regexp.Regexp, url string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("[https://youtu.be/%v] %v - %v (%v)\n",
-		data.Id, data.Uploader, data.Title, duration), nil
+	return fmt.Sprintf("[https://youtu.be/%v] %v%v%v - %v (%v)\n",
+		data.Id, irclib.CC_Bold, data.Uploader, irclib.CC_Reset, data.Title, duration), nil
 }
 
 func ytPLParser(re *regexp.Regexp, url string) (string, error) {
@@ -66,8 +67,8 @@ func ytPLParser(re *regexp.Regexp, url string) (string, error) {
 	}
 	data := jData.Data
 
-	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v - %v (%v videos)\n",
-		data.Id, data.Author, data.Title, data.TotalItems), nil
+	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v%v%v - %v (%v videos)\n",
+		data.Id, irclib.CC_Bold, data.Author, irclib.CC_Reset, data.Title, data.TotalItems), nil
 }
 
 func githubParser(re *regexp.Regexp, url string) (string, error) {
@@ -86,9 +87,9 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 		descLen, elip = maxContentLen, "..."
 	}
 
-	return fmt.Sprintf("[%v] <%v> %v%v %v\n",
-		jData.Html_url, jData.Language, jData.Description[:descLen],
-		elip, jData.Homepage), nil
+	return fmt.Sprintf("[%v] <%v%v%v> %v%v %v\n",
+		jData.Html_url, irclib.CC_FgLightBlue, jData.Language, irclib.CC_Reset,
+		jData.Description[:descLen], elip, jData.Homepage), nil
 }
 
 func fourChParser(re *regexp.Regexp, url string) (string, error) {
