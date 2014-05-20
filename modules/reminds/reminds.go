@@ -154,8 +154,8 @@ func (self *Reminds) Add(key ChanNick, msg *Message) {
 }
 
 func (self *Reminds) GetExpired(key ChanNick) []*Message {
-	self.mut.RLock()
-	defer self.mut.RUnlock()
+	self.mut.Lock()
+	defer self.mut.Unlock()
 
 	expiredList := make([]*Message, 0, 5)
 	expiredInd := make([]int, 0, 5)
@@ -175,8 +175,7 @@ func (self *Reminds) GetExpired(key ChanNick) []*Message {
 	}
 
 	sort.Sort(msgList(expiredList))
-
-	go self.remove(key, expiredInd...)
+	self.remove(key, expiredInd...)
 
 	return expiredList
 }
@@ -231,10 +230,8 @@ func (self *Reminds) String() string {
 	return out
 }
 
+// remove() does not lock. The callee should hold a write lock
 func (self *Reminds) remove(key ChanNick, indices ...int) {
-	self.mut.Lock()
-	defer self.mut.Unlock()
-
 	msgList, ok := self.msgMap[key]
 	if !ok {
 		return
