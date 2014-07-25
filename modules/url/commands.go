@@ -10,7 +10,7 @@ func registerCommands() {
 }
 
 func regComParse() {
-	Module.RegisterRegexp(module.E_PRIVMSG, urlRe, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, urlRe, func(line *irc.Line) {
 		url := urlRe.FindString(line.Text())
 		if url == "" {
 			return

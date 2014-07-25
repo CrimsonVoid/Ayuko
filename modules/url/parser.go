@@ -51,8 +51,11 @@ func ytVidParser(re *regexp.Regexp, url string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("[https://youtu.be/%v] %v%v%v - %v (%v)\n",
-		data.Id, irclib.CC_Bold, data.Uploader, irclib.CC_Reset, data.Title, duration), nil
+	return fmt.Sprintf("[https://youtu.be/%v] %v - %v%v%v (%v)\n",
+		data.Id,
+		data.Uploader,
+		irclib.CC_Bold, data.Title, irclib.CC_Reset,
+		duration), nil
 }
 
 func ytPLParser(re *regexp.Regexp, url string) (string, error) {
@@ -67,8 +70,11 @@ func ytPLParser(re *regexp.Regexp, url string) (string, error) {
 	}
 	data := jData.Data
 
-	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v%v%v - %v (%v videos)\n",
-		data.Id, irclib.CC_Bold, data.Author, irclib.CC_Reset, data.Title, data.TotalItems), nil
+	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v - %v%v%v (%v videos)\n",
+		data.Id,
+		data.Author,
+		irclib.CC_Bold, data.Title, irclib.CC_Reset,
+		data.TotalItems), nil
 }
 
 func githubParser(re *regexp.Regexp, url string) (string, error) {
@@ -88,8 +94,10 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	return fmt.Sprintf("[%v] <%v%v%v> %v%v %v\n",
-		jData.Html_url, irclib.CC_FgLightBlue, jData.Language, irclib.CC_Reset,
-		jData.Description[:descLen], elip, jData.Homepage), nil
+		jData.Html_url,
+		irclib.CC_FgLightBlue, jData.Language, irclib.CC_Reset,
+		jData.Description[:descLen], elip,
+		jData.Homepage), nil
 }
 
 func fourChParser(re *regexp.Regexp, url string) (string, error) {
@@ -119,21 +127,48 @@ func fourChParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	subj, elip := op.Sub, ""
-
 	if subj == "" {
-		if subj = op.Com; subj == "" {
-			subj = "{No comment}"
-		}
+		subj = op.Com
 	}
 
+	subj = html.UnescapeString(cleanHTML(subj))
 	if len(subj) > maxContentLen {
 		subj = subj[:maxContentLen]
 	}
+	subj = strings.TrimSpace(subj)
 
-	subj = html.UnescapeString(subj)
+	return fmt.Sprintf("[https://boards.4chan.org/%v/thread/%v%v] %v%v\n",
+		groups["board"],
+		jData.Posts[0].No, post,
+		subj, elip), nil
+}
 
-	return fmt.Sprintf("[https://boards.4chan.org/%v/res/%v%v] %v%v\n",
-		groups["board"], jData.Posts[0].No, post, subj, elip), nil
+func vimeoParser(re *regexp.Regexp, url string) (string, error) {
+	groups, err := matchGroups(re, url)
+	if err != nil {
+		return "", err
+	}
+
+	jData := make([]vimeoJSON, 0, 1)
+	if err = getBody(fmt.Sprintf(vimeoAPI, groups["id"]), &jData); err != nil {
+		return "", err
+	}
+	if len(jData) == 0 {
+		return "", fmt.Errorf("No data found")
+	}
+
+	data := jData[0]
+
+	duration, err := time.ParseDuration(fmt.Sprintf("%ds", data.Duration))
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("[http://vimeo.com/%v] %v - %v%v%v (%v)\n",
+		data.Id,
+		data.Username,
+		irclib.CC_Bold, data.Title, irclib.CC_Reset,
+		duration), nil
 }
 
 func genericParser(url string) (string, error) {
@@ -203,7 +238,8 @@ func getBody(url string, data interface{}) error {
 		return err
 	}
 
-	if dec := json.NewDecoder(resp.Body); dec.Decode(data) != nil {
+	dec := json.NewDecoder(resp.Body)
+	if err = dec.Decode(data); err != nil {
 		return err
 	}
 

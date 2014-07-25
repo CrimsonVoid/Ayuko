@@ -1,6 +1,7 @@
 package url
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/crimsonvoid/irclib/module"
@@ -11,6 +12,10 @@ const (
 )
 
 var (
+	htmlCleanerR = regexp.MustCompile(fmt.Sprintf(`</?[%v].*?>`,
+		`a|br|code|span`,
+	))
+
 	urlRe = regexp.MustCompile(`(http|https)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])*`)
 
 	Module *module.Module
@@ -73,6 +78,20 @@ var (
 	fourChAPI    = "https://a.4cdn.org/%v/thread/%v.json"
 )
 
+// Vimeo
+type vimeoJSON struct {
+	Id       int    `json:"id"`
+	Title    string `json:"title"`
+	Url      string `json:"url"`
+	Username string `json:"user_name"`
+	Duration int    `json:"duration"`
+}
+
+var (
+	vimeoRegexp = regexp.MustCompile(`vimeo.com/(?P<id>\d{8})`)
+	vimeoAPI    = "https://vimeo.com/api/v2/video/%v.json"
+)
+
 // Reddit
 
 // Soundcloud
@@ -98,4 +117,5 @@ var parseMap = []struct {
 	{githubRegexp, githubParser},
 	{githubIORegexp, githubParser},
 	{fourChRegexp, fourChParser},
+	{vimeoRegexp, vimeoParser},
 }

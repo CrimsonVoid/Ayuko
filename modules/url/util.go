@@ -21,3 +21,7 @@ func matchGroups(reg *regexp.Regexp, s string) (map[string]string, error) {
 
 	return groups, nil
 }
+
+func cleanHTML(com string) string {
+	return htmlCleanerR.ReplaceAllLiteralString(com, " ")
+}
