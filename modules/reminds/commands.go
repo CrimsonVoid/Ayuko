@@ -30,7 +30,7 @@ func registerCommands() {
 }
 
 func regComAddRemind() {
-	Module.RegisterRegexp(module.E_PRIVMSG, remindsR, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, remindsR, func(line *irc.Line) {
 		lineText := line.Text()
 		groups, _ := matchGroups(remindsR, lineText)
 		nicks := getNicks(groups["ids"])
@@ -119,7 +119,7 @@ func regComAddRemind() {
 func regComGetRemind() {
 	re := regexp.MustCompile(`.*`)
 
-	Module.RegisterRegexp(module.E_PRIVMSG, re, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, re, func(line *irc.Line) {
 		rems := reminds.GetExpired(ChanNick{strings.ToLower(line.Target()),
 			strings.ToLower(line.Nick)})
 
@@ -194,7 +194,7 @@ func getNicks(ids string) []string {
 	}
 
 	cleanIds := make([]string, 0, len(set))
-	for k, _ := range set {
+	for k := range set {
 		cleanIds = append(cleanIds, k)
 	}
 

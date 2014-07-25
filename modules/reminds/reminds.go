@@ -32,11 +32,9 @@ type Reminds struct {
 }
 
 func NewReminds() Reminds {
-	rems := Reminds{
+	return Reminds{
 		msgMap: make(map[ChanNick][]*Message),
 	}
-
-	return rems
 }
 
 func (self *Reminds) Start() error {
@@ -208,9 +206,9 @@ func (self *Reminds) String() string {
 				statusColor = console.C_FgRed
 			}
 
-			nickList = append(nickList, fmt.Sprintf("%v%v%v - %v: %v",
+			nickList = append(nickList, fmt.Sprintf("%v%v%v %v%v%v %v",
 				statusColor, msg.Expire.Format(pprintFormat), console.C_Reset,
-				msg.From, msg.Message))
+				console.C_FgYellow, msg.From, console.C_Reset, msg.Message))
 		}
 
 		nickMap[chnNick.Nick] = nickList
@@ -248,7 +246,7 @@ func (self *Reminds) remove(key ChanNick, indices ...int) {
 
 		msgList[i], msgList[listLen] = msgList[listLen], msgList[i]
 		msgList = msgList[:listLen]
-		listLen -= 1
+		listLen--
 		lastIndex = i
 	}
 
