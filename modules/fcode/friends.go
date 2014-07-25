@@ -94,7 +94,7 @@ func (self *fcManager) String() string {
 	out := ""
 	maxNickLen := 0
 
-	for nick, _ := range self.friendCodes {
+	for nick := range self.friendCodes {
 		if nickLen := len(nick); nickLen > maxNickLen {
 			maxNickLen = nickLen
 		}

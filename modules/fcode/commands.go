@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/crimsonvoid/irclib"
 	"github.com/crimsonvoid/irclib/module"
 	irc "github.com/fluffle/goirc/client"
 )
@@ -38,7 +39,7 @@ func registerCommands() {
 }
 
 func regComAdd() {
-	Module.RegisterRegexp(module.E_PRIVMSG, fcAdd, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, fcAdd, func(line *irc.Line) {
 		lineText := line.Text()
 		groups, _ := matchGroups(fcAdd, lineText)
 
@@ -54,14 +55,14 @@ func regComAdd() {
 		}
 
 		Module.Logger.Infof("Added friendCode[%v].%v = %v\n",
-			groups["nick"], groups["system"], groups["fcode"])
+			strings.ToLower(line.Nick), groups["system"], groups["fcode"])
 		Module.Conn.Notice(line.Nick,
 			fmt.Sprintf("Saved friend code %v for %v\n", groups["fcode"], groups["system"]))
 	})
 }
 
 func regComRem() {
-	Module.RegisterRegexp(module.E_PRIVMSG, fcRem, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, fcRem, func(line *irc.Line) {
 		lineText := line.Text()
 		groups, _ := matchGroups(fcRem, lineText)
 
@@ -88,7 +89,7 @@ func regComRem() {
 }
 
 func regComGet() {
-	Module.RegisterRegexp(module.E_PRIVMSG, fcGet, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, fcGet, func(line *irc.Line) {
 		lineText := strings.ToLower(line.Text())
 		groups, _ := matchGroups(fcGet, lineText)
 
@@ -104,7 +105,9 @@ func regComGet() {
 
 		codes := fmt.Sprintf("%v's friend codes are ", groups["nick"])
 		for system, code := range fcMap {
-			codes += fmt.Sprintf("(%v: %v) ", system, code)
+			codes += fmt.Sprintf("(%v%v%v: %v%v%v) ",
+				irclib.CC_Bold, system, irclib.CC_Reset,
+				irclib.CC_FgLightBlue, code, irclib.CC_Reset)
 		}
 
 		switch groups["mode"] {
@@ -117,7 +120,7 @@ func regComGet() {
 }
 
 func regComGetSystem() {
-	Module.RegisterRegexp(module.E_PRIVMSG, fcList, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, fcList, func(line *irc.Line) {
 		lineText := line.Text()
 		groups, _ := matchGroups(fcList, lineText)
 
@@ -131,7 +134,9 @@ func regComGetSystem() {
 
 		codes := ""
 		for nick, code := range sysMap {
-			codes += fmt.Sprintf("(%v - %v) ", nick, code)
+			codes += fmt.Sprintf("(%v%v%v - %v%v%v) ",
+				irclib.CC_Bold, nick, irclib.CC_Reset,
+				irclib.CC_FgLightBlue, code, irclib.CC_Reset)
 		}
 
 		switch groups["mode"] {
@@ -144,14 +149,14 @@ func regComGetSystem() {
 }
 
 func regComFcHelp() {
-	Module.RegisterRegexp(module.E_PRIVMSG, fcHelp, func(line *irc.Line) {
+	Module.Register(module.E_PRIVMSG, fcHelp, func(line *irc.Line) {
 		Module.Conn.Notice(line.Nick, FcHelp())
 	})
 }
 
 func regConsSave() error {
 	re := regexp.MustCompile(`^save ?(?P<file>.*)?$`)
-	err := Module.Console.RegisterRegexp(re, func(s string) {
+	err := Module.Console.Register(re, func(s string) {
 		groups, _ := matchGroups(re, s)
 
 		if groups["file"] == "" {
@@ -174,7 +179,7 @@ func regConsSave() error {
 
 func regConsLoad() error {
 	re := regexp.MustCompile(`^load ?(?P<file>.*)$`)
-	err := Module.Console.RegisterRegexp(re, func(s string) {
+	err := Module.Console.Register(re, func(s string) {
 		groups, _ := matchGroups(re, s)
 
 		if groups["file"] == "" {
