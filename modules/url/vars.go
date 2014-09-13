@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	maxContentLen = 150
+	maxContentLen = 80
 )
 
 var (
@@ -92,13 +92,14 @@ var (
 	vimeoAPI    = "https://vimeo.com/api/v2/video/%v.json"
 )
 
+var (
+	steamRegexp = regexp.MustCompile(`store.steampowered.com/app/(?P<id>\d*)`)
+	hnRegexp    = regexp.MustCompile(`news.ycombinator.com/item?id=(?P<id>\d*)`)
+)
+
 // Reddit
-
 // Soundcloud
-
 // Twitter
-
-// Imgur
 
 /*
 Input:
@@ -118,4 +119,6 @@ var parseMap = []struct {
 	{githubIORegexp, githubParser},
 	{fourChRegexp, fourChParser},
 	{vimeoRegexp, vimeoParser},
+	{steamRegexp, steamParser},
+	{hnRegexp, hnParser},
 }

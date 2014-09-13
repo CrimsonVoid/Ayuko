@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -34,25 +35,34 @@ func Parse(url string) (string, error) {
 	return "", errors.New("No match")
 }
 
-func ytVidParser(re *regexp.Regexp, url string) (string, error) {
-	groups, err := matchGroups(re, url)
+func ytVidParser(re *regexp.Regexp, uri string) (string, error) {
+	groups, err := matchGroups(re, uri)
 	if err != nil {
 		return "", err
 	}
 
 	jData := ytVidJSON{}
-	if err = getBody(fmt.Sprintf(ytVidAPI, groups["id"]), &jData); err != nil {
+	if err = decodeJSON(fmt.Sprintf(ytVidAPI, groups["id"]), &jData); err != nil {
 		return "", err
 	}
 	data := jData.Data
+
+	timeQuery := ""
+	if u, err := url.Parse(uri); err == nil {
+		vals := u.Query()
+
+		if t := vals.Get("t"); t != "" {
+			timeQuery = "?t=" + t
+		}
+	}
 
 	duration, err := time.ParseDuration(fmt.Sprintf("%ds", data.Duration))
 	if err != nil {
 		return "", err
 	}
 
-	return fmt.Sprintf("[https://youtu.be/%v] %v - %v%v%v (%v)\n",
-		data.Id,
+	return fmt.Sprintf("[https://youtu.be/%v%v] %v - %v%v%v (%v)\n",
+		data.Id, timeQuery,
 		data.Uploader,
 		irclib.CC_Bold, data.Title, irclib.CC_Reset,
 		duration), nil
@@ -65,7 +75,7 @@ func ytPLParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	jData := ytPLJSON{}
-	if err = getBody(fmt.Sprintf(ytPLAPI, groups["id"]), &jData); err != nil {
+	if err = decodeJSON(fmt.Sprintf(ytPLAPI, groups["id"]), &jData); err != nil {
 		return "", err
 	}
 	data := jData.Data
@@ -84,7 +94,7 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	jData := githubJSON{}
-	if err := getBody(fmt.Sprintf(githubAPI, groups["user"], groups["repo"]), &jData); err != nil {
+	if err := decodeJSON(fmt.Sprintf(githubAPI, groups["user"], groups["repo"]), &jData); err != nil {
 		return "", err
 	}
 
@@ -107,7 +117,7 @@ func fourChParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	jData := fourChJSON{}
-	if err = getBody(fmt.Sprintf(fourChAPI, groups["board"], groups["thread"]), &jData); err != nil {
+	if err = decodeJSON(fmt.Sprintf(fourChAPI, groups["board"], groups["thread"]), &jData); err != nil {
 		return "", err
 	}
 
@@ -150,7 +160,7 @@ func vimeoParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	jData := make([]vimeoJSON, 0, 1)
-	if err = getBody(fmt.Sprintf(vimeoAPI, groups["id"]), &jData); err != nil {
+	if err = decodeJSON(fmt.Sprintf(vimeoAPI, groups["id"]), &jData); err != nil {
 		return "", err
 	}
 	if len(jData) == 0 {
@@ -171,6 +181,58 @@ func vimeoParser(re *regexp.Regexp, url string) (string, error) {
 		duration), nil
 }
 
+func steamParser(re *regexp.Regexp, url string) (string, error) {
+	groups, err := matchGroups(re, url)
+	if err != nil {
+		return "", err
+	}
+
+	return parseTitle(fmt.Sprintf("http://store.steampowered.com/app/%v",
+		groups["id"]))
+}
+
+func hnParser(re *regexp.Regexp, url string) (string, error) {
+	groups, err := matchGroups(re, url)
+	if err != nil {
+		return "", err
+	}
+
+	return parseTitle(fmt.Sprintf("https://news.ycombinator.com/item?id=%v",
+		groups["id"]))
+}
+
+func parseTitle(url string) (string, error) {
+	title, err := genericParser(url)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("[%v] %v%v%v",
+		url,
+		irclib.CC_Bold, title, irclib.CC_Reset,
+	), nil
+}
+
+func decodeJSON(url string, data interface{}) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if err := respOkay(resp); err != nil {
+		return err
+	}
+
+	dec := json.NewDecoder(resp.Body)
+	if err = dec.Decode(data); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Returns the <title> of `url`
 func genericParser(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -178,7 +240,7 @@ func genericParser(url string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	if err := respStatus(resp); err != nil {
+	if err := respOkay(resp); err != nil {
 		return "", err
 	}
 
@@ -188,10 +250,10 @@ func genericParser(url string) (string, error) {
 		return "", err
 	}
 
-	return parseTitle(tkn)
+	return findTitle(tkn)
 }
 
-func parseTitle(n *html.Node) (string, error) {
+func findTitle(n *html.Node) (string, error) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		// Get title from <head> element
 		if c.Data == "head" {
@@ -201,13 +263,14 @@ func parseTitle(n *html.Node) (string, error) {
 		// Parse child nodes only if they are html.(Document|Element)Nodes
 		if fChild := c.FirstChild; fChild != nil &&
 			(fChild.Type == html.DocumentNode || fChild.Type == html.ElementNode) {
-			return parseTitle(c)
+			return findTitle(c)
 		}
 	}
 
 	return "", errors.New("head attribute not found")
 }
 
+// Find "<title>" tag, returning an error if the tag is not found
 func getTitle(n *html.Node) (string, error) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		// Only parse (Document|Element)Node's
@@ -227,26 +290,8 @@ func getTitle(n *html.Node) (string, error) {
 	return "", errors.New("No title attribute")
 }
 
-func getBody(url string, data interface{}) error {
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if err := respStatus(resp); err != nil {
-		return err
-	}
-
-	dec := json.NewDecoder(resp.Body)
-	if err = dec.Decode(data); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func respStatus(resp *http.Response) error {
+// Check the response is okay and "content-type" is plain text
+func respOkay(resp *http.Response) error {
 	// 200 < resp <= 400
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
 		return fmt.Errorf("Response status %v", resp.Status)

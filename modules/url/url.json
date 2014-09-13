@@ -4,7 +4,6 @@
 	"logdir":      "./data/logs/",
 	"enabled":     true,
 
-	"DenyChan": ["#r/a/dio"],
 	"DenyUser": [
 		"Hanyuu-sama",
 		"tickleweasel",
