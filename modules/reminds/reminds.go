@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/crimsonvoid/console"
+	"github.com/crimsonvoid/console/styles"
 )
 
 type Message struct {
@@ -201,14 +201,16 @@ func (self *Reminds) String() string {
 			// Green - Expired
 			// Red   - Active
 
-			statusColor := console.C_FgGreen
+			statusColor := styles.Green
 			if now.Before(msg.Expire) {
-				statusColor = console.C_FgRed
+				statusColor = styles.Red
 			}
 
-			nickList = append(nickList, fmt.Sprintf("%v%v%v %v%v%v %v",
-				statusColor, msg.Expire.Format(pprintFormat), console.C_Reset,
-				console.C_FgYellow, msg.From, console.C_Reset, msg.Message))
+			nickList = append(nickList, fmt.Sprintf("%v %v %v",
+				statusColor.Fg("%v", msg.Expire.Format(pprintFormat)),
+				styles.Yellow.Fg("%v", msg.From),
+				msg.Message),
+			)
 		}
 
 		nickMap[chnNick.Nick] = nickList
