@@ -61,7 +61,7 @@ func ytVidParser(re *regexp.Regexp, uri string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("[https://youtu.be/%v%v] %v - %v%v%v (%v)\n",
+	return fmt.Sprintf("[https://youtu.be/%v%v] %v - %v%v%v (%v)",
 		data.Id, timeQuery,
 		data.Uploader,
 		irclib.CC_Bold, data.Title, irclib.CC_Reset,
@@ -80,7 +80,7 @@ func ytPLParser(re *regexp.Regexp, url string) (string, error) {
 	}
 	data := jData.Data
 
-	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v - %v%v%v (%v videos)\n",
+	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v - %v%v%v (%v videos)",
 		data.Id,
 		data.Author,
 		irclib.CC_Bold, data.Title, irclib.CC_Reset,
@@ -103,24 +103,23 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 		descLen, elip = maxContentLen, "..."
 	}
 
-	return fmt.Sprintf("[%v] <%v%v%v> %v%v %v\n",
+	return fmt.Sprintf("[%v] <%v%v%v> %v%v %v",
 		jData.Html_url,
 		irclib.CC_FgLightBlue, jData.Language, irclib.CC_Reset,
 		jData.Description[:descLen], elip,
 		jData.Homepage), nil
 }
 
-func fourChParser(re *regexp.Regexp, url string) (string, error) {
+func chanParser(re *regexp.Regexp, url, api, format string) (string, error) {
 	groups, err := matchGroups(re, url)
 	if err != nil {
 		return "", err
 	}
 
-	jData := fourChJSON{}
-	if err = decodeJSON(fmt.Sprintf(fourChAPI, groups["board"], groups["thread"]), &jData); err != nil {
+	jData := chanJSON{}
+	if err = decodeJSON(fmt.Sprintf(api, groups["board"], groups["thread"]), &jData); err != nil {
 		return "", err
 	}
-
 	op, post := jData.Posts[0], ""
 
 	if postID, err := strconv.Atoi(groups["post"]); err == nil && postID > op.No {
@@ -130,7 +129,7 @@ func fourChParser(re *regexp.Regexp, url string) (string, error) {
 			}
 
 			op = fChData
-			post = fmt.Sprintf("#p%v", fChData.No)
+			post = fmt.Sprintf("#%v%v", groups["rel"], fChData.No)
 
 			break
 		}
@@ -147,10 +146,19 @@ func fourChParser(re *regexp.Regexp, url string) (string, error) {
 	}
 	subj = strings.TrimSpace(subj)
 
-	return fmt.Sprintf("[https://boards.4chan.org/%v/thread/%v%v] %v%v\n",
+	return fmt.Sprintf(format,
 		groups["board"],
 		jData.Posts[0].No, post,
 		subj, elip), nil
+
+}
+
+func fourChParser(re *regexp.Regexp, url string) (string, error) {
+	return chanParser(re, url, fourChAPI, fourChFmt)
+}
+
+func eightChParser(re *regexp.Regexp, url string) (string, error) {
+	return chanParser(re, url, eightChAPI, eightChFmt)
 }
 
 func vimeoParser(re *regexp.Regexp, url string) (string, error) {
@@ -174,7 +182,7 @@ func vimeoParser(re *regexp.Regexp, url string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("[http://vimeo.com/%v] %v - %v%v%v (%v)\n",
+	return fmt.Sprintf("[http://vimeo.com/%v] %v - %v%v%v (%v)",
 		data.Id,
 		data.Username,
 		irclib.CC_Bold, data.Title, irclib.CC_Reset,
