@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"code.google.com/p/go.net/html"
-	"github.com/crimsonvoid/irclib"
+	"github.com/crimsonvoid/irclib/styles"
 )
 
 func Parse(url string) (string, error) {
@@ -61,10 +61,10 @@ func ytVidParser(re *regexp.Regexp, uri string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("[https://youtu.be/%v%v] %v - %v%v%v (%v)",
+	return fmt.Sprintf("[https://youtu.be/%v%v] %v - %v (%v)",
 		data.Id, timeQuery,
 		data.Uploader,
-		irclib.CC_Bold, data.Title, irclib.CC_Reset,
+		styles.Bold.Paint("%v", data.Title),
 		duration), nil
 }
 
@@ -80,10 +80,10 @@ func ytPLParser(re *regexp.Regexp, url string) (string, error) {
 	}
 	data := jData.Data
 
-	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v - %v%v%v (%v videos)",
+	return fmt.Sprintf("[https://youtube.com/playlist?list=%v] %v - %v (%v videos)",
 		data.Id,
 		data.Author,
-		irclib.CC_Bold, data.Title, irclib.CC_Reset,
+		styles.Bold.Paint("%v", data.Title),
 		data.TotalItems), nil
 }
 
@@ -103,9 +103,9 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 		descLen, elip = maxContentLen, "..."
 	}
 
-	return fmt.Sprintf("[%v] <%v%v%v> %v%v %v",
+	return fmt.Sprintf("[%v] <%v> %v%v %v",
 		jData.Html_url,
-		irclib.CC_FgLightBlue, jData.Language, irclib.CC_Reset,
+		styles.LightBlue.Fg("%v", jData.Language),
 		jData.Description[:descLen], elip,
 		jData.Homepage), nil
 }
@@ -182,10 +182,10 @@ func vimeoParser(re *regexp.Regexp, url string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("[http://vimeo.com/%v] %v - %v%v%v (%v)",
+	return fmt.Sprintf("[http://vimeo.com/%v] %v - %v (%v)",
 		data.Id,
 		data.Username,
-		irclib.CC_Bold, data.Title, irclib.CC_Reset,
+		styles.Bold.Paint("%v", data.Title),
 		duration), nil
 }
 
@@ -215,9 +215,9 @@ func parseTitle(url string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("[%v] %v%v%v",
+	return fmt.Sprintf("[%v] %v",
 		url,
-		irclib.CC_Bold, title, irclib.CC_Reset,
+		styles.Bold.Paint("%v", title),
 	), nil
 }
 

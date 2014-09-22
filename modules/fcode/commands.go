@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/crimsonvoid/irclib"
 	"github.com/crimsonvoid/irclib/module"
+	"github.com/crimsonvoid/irclib/styles"
 	irc "github.com/fluffle/goirc/client"
 )
 
@@ -105,9 +105,9 @@ func regComGet() {
 
 		codes := fmt.Sprintf("%v's friend codes are ", groups["nick"])
 		for system, code := range fcMap {
-			codes += fmt.Sprintf("(%v%v%v: %v%v%v) ",
-				irclib.CC_Bold, system, irclib.CC_Reset,
-				irclib.CC_FgLightBlue, code, irclib.CC_Reset)
+			codes += fmt.Sprintf("(%v: %v) ",
+				styles.Bold.Paint("%v", system),
+				styles.LightBlue.Fg("%v", code))
 		}
 
 		switch groups["mode"] {
@@ -134,9 +134,9 @@ func regComGetSystem() {
 
 		codes := ""
 		for nick, code := range sysMap {
-			codes += fmt.Sprintf("(%v%v%v - %v%v%v) ",
-				irclib.CC_Bold, nick, irclib.CC_Reset,
-				irclib.CC_FgLightBlue, code, irclib.CC_Reset)
+			codes += fmt.Sprintf("(%v: %v) ",
+				styles.Bold.Paint("%v", nick),
+				styles.LightBlue.Fg("%v", code))
 		}
 
 		switch groups["mode"] {
