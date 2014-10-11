@@ -14,8 +14,8 @@ func init() {
 	ext := filepath.Ext(base)
 	var err error
 
-	Module, err = module.New(fmt.Sprintf("%v%c%v.json",
-		filepath.Dir(file), filepath.Separator, base[:len(base)-len(ext)]))
+	Module, err = module.New(fmt.Sprintf("data%[1]cconfs%[1]c%v.json",
+		filepath.Separator, base[:len(base)-len(ext)]))
 	if err != nil {
 		panic(err)
 	}
