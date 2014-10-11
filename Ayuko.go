@@ -9,7 +9,7 @@ import (
 	"github.com/crimsonvoid/ayuko/modules/fcode"
 	"github.com/crimsonvoid/ayuko/modules/reminds"
 	"github.com/crimsonvoid/ayuko/modules/url"
-	"github.com/crimsonvoid/ayuko/modules/zen"
+	// "github.com/crimsonvoid/ayuko/modules/zen"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 
 	m.Register(fcode.Module)
 	m.Register(reminds.Module)
-	m.Register(zen.Module)
+	// m.Register(zen.Module)
 	m.Register(url.Module)
 
 	m.Connect()

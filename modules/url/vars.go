@@ -60,8 +60,8 @@ type githubJSON struct {
 }
 
 var (
-	githubRegexp   = regexp.MustCompile(`github.com/(?P<user>.*?)/(?P<repo>.*?)($|/)`)
-	githubIORegexp = regexp.MustCompile(`(http(s)?://)?(?P<user>.*)\.github.io/(?P<repo>.*?)($|/)`)
+	githubRegexp   = regexp.MustCompile(`github\.com/(?P<user>.*?)/(?P<repo>.*?)($|/)`)
+	githubIORegexp = regexp.MustCompile(`(http(s)?://)?(?P<user>.*)\.github\.io/(?P<repo>.*?)($|/)`)
 	githubAPI      = "https://api.github.com/repos/%v/%v"
 )
 
@@ -93,13 +93,13 @@ type vimeoJSON struct {
 }
 
 var (
-	vimeoRegexp = regexp.MustCompile(`vimeo.com/(?P<id>\d{8})`)
+	vimeoRegexp = regexp.MustCompile(`vimeo\.com/(?P<id>\d{8})`)
 	vimeoAPI    = "https://vimeo.com/api/v2/video/%v.json"
 )
 
 var (
-	steamRegexp = regexp.MustCompile(`store.steampowered.com/app/(?P<id>\d*)`)
-	hnRegexp    = regexp.MustCompile(`news.ycombinator.com/item?id=(?P<id>\d*)`)
+	steamRegexp = regexp.MustCompile(`store\.steampowered\.com/app/(?P<id>\d*)`)
+	hnRegexp    = regexp.MustCompile(`news\.ycombinator\.com/item\?id=(?P<id>\d*)`)
 )
 
 // Reddit
