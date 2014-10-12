@@ -57,12 +57,18 @@ type githubJSON struct {
 	Description string
 	Language    string
 	Homepage    string
+
+	// Issues
+	Title string
+	State string
 }
 
 var (
-	githubRegexp   = regexp.MustCompile(`github\.com/(?P<user>.*?)/(?P<repo>.*?)($|/)`)
+	githubRegexp = regexp.MustCompile(
+		`github\.com/(?P<user>.*?)/(?P<repo>.*?)($|/((pull|issues)/(?P<id>\d+))?)`)
 	githubIORegexp = regexp.MustCompile(`(http(s)?://)?(?P<user>.*)\.github\.io/(?P<repo>.*?)($|/)`)
 	githubAPI      = "https://api.github.com/repos/%v/%v"
+	gitIssueAppend = "/issues/%v"
 )
 
 // 4Chan

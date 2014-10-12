@@ -93,21 +93,48 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 		return "", err
 	}
 
+	api := fmt.Sprintf(githubAPI, groups["user"], groups["repo"])
+
 	jData := githubJSON{}
-	if err := decodeJSON(fmt.Sprintf(githubAPI, groups["user"], groups["repo"]), &jData); err != nil {
+
+	// Get basic repo info
+	if err := decodeJSON(api, &jData); err != nil {
 		return "", err
 	}
 
-	descLen, elip := len(jData.Description), ""
-	if descLen > maxContentLen {
-		descLen, elip = maxContentLen, "..."
+	// Get issue info
+	if id := groups["id"]; id != "" {
+		api += fmt.Sprintf(gitIssueAppend, id)
+		if err := decodeJSON(api, &jData); err != nil {
+			return "", err
+		}
 	}
 
-	return fmt.Sprintf("[%v] <%v> %v%v %v",
+	var lang string
+	switch jData.State { // `State` will only be present for issues
+	case "open":
+		lang = styles.LightGreen.Fg("%v", jData.Language)
+	case "closed":
+		lang = styles.LightRed.Fg("%v", jData.Language)
+	default: // case "":
+		lang = styles.LightBlue.Fg("%v", jData.Language)
+	}
+
+	desc, homepage := jData.Title, ""
+	if desc == "" {
+		desc, homepage = jData.Description, jData.Homepage
+	}
+
+	if len(desc) > maxContentLen {
+		desc = desc[:maxContentLen] + "..."
+	}
+
+	return fmt.Sprintf("[%v] <%v> %v %v",
 		jData.Html_url,
-		styles.LightBlue.Fg("%v", jData.Language),
-		jData.Description[:descLen], elip,
-		jData.Homepage), nil
+		lang,
+		desc,
+		homepage,
+	), nil
 }
 
 func chanParser(re *regexp.Regexp, url, api, format string) (string, error) {
