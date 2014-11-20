@@ -20,7 +20,7 @@ func init() {
 	ext := filepath.Ext(base)
 	var err error
 
-	Module, err = module.New(fmt.Sprintf("data%[1]cconfs%[1]c%v.json",
+	Module, err = module.New(fmt.Sprintf("data%[1]cconfs%[1]c%v.toml",
 		filepath.Separator, base[:len(base)-len(ext)]))
 	if err != nil {
 		panic(err)

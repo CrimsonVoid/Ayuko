@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	configFile := flag.String("config", "data/confs/config.json", "Set a config file")
+	configFile := flag.String("config", "data/confs/config.toml", "Set a config file")
 	flag.Parse()
 
 	module.SetLogDir("./data/logs/")
