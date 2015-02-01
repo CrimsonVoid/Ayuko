@@ -71,24 +71,6 @@ var (
 	gitIssueAppend = "/issues/%v"
 )
 
-// 4Chan
-type chanJSON struct {
-	Posts []struct {
-		Sub, Com string
-		No       int
-	}
-}
-
-var (
-	fourChRegexp = regexp.MustCompile(`4chan\.org/(?P<board>[[:alnum:]]+)/thread/(?P<thread>\d+)(#(?P<rel>p)(?P<post>\d+))?`)
-	fourChAPI    = "https://a.4cdn.org/%v/thread/%v.json"
-	fourChFmt    = "[https://boards.4chan.org/%v/thread/%v%v] %v%v"
-
-	eightChRegexp = regexp.MustCompile(`8chan\.co/(?P<board>[[:alnum:]]+)/res/(?P<thread>\d+)\.html(#(?P<rel>)(?P<post>\d+))?`)
-	eightChAPI    = "https://8chan.co/%v/res/%v.json"
-	eightChFmt    = "[https://8chan.co/%v/res/%v.html%v] %v%v"
-)
-
 // Vimeo
 type vimeoJSON struct {
 	Id       int    `json:"id"`
@@ -128,8 +110,6 @@ var parseMap = []struct {
 	{ytPLRegexp, ytPLParser},
 	{githubRegexp, githubParser},
 	{githubIORegexp, githubParser},
-	{fourChRegexp, fourChParser},
-	{eightChRegexp, eightChParser},
 	{vimeoRegexp, vimeoParser},
 	{steamRegexp, steamParser},
 	{hnRegexp, hnParser},

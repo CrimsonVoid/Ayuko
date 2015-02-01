@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -135,57 +134,6 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 		desc,
 		homepage,
 	), nil
-}
-
-func chanParser(re *regexp.Regexp, url, api, format string) (string, error) {
-	groups, err := matchGroups(re, url)
-	if err != nil {
-		return "", err
-	}
-
-	jData := chanJSON{}
-	if err = decodeJSON(fmt.Sprintf(api, groups["board"], groups["thread"]), &jData); err != nil {
-		return "", err
-	}
-	op, post := jData.Posts[0], ""
-
-	if postID, err := strconv.Atoi(groups["post"]); err == nil && postID > op.No {
-		for _, fChData := range jData.Posts {
-			if fChData.No != postID {
-				continue
-			}
-
-			op = fChData
-			post = fmt.Sprintf("#%v%v", groups["rel"], fChData.No)
-
-			break
-		}
-	}
-
-	subj, elip := op.Sub, ""
-	if subj == "" {
-		subj = op.Com
-	}
-
-	subj = html.UnescapeString(cleanHTML(subj))
-	if len(subj) > maxContentLen {
-		subj = subj[:maxContentLen]
-	}
-	subj = strings.TrimSpace(subj)
-
-	return fmt.Sprintf(format,
-		groups["board"],
-		jData.Posts[0].No, post,
-		subj, elip), nil
-
-}
-
-func fourChParser(re *regexp.Regexp, url string) (string, error) {
-	return chanParser(re, url, fourChAPI, fourChFmt)
-}
-
-func eightChParser(re *regexp.Regexp, url string) (string, error) {
-	return chanParser(re, url, eightChAPI, eightChFmt)
 }
 
 func vimeoParser(re *regexp.Regexp, url string) (string, error) {
