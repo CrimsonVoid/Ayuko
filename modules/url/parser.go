@@ -93,35 +93,53 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	api := fmt.Sprintf(githubAPI, groups["user"], groups["repo"])
+	repoData := githubRepoJSON{}
 
-	jData := githubJSON{}
-
-	// Get basic repo info
-	if err := decodeJSON(api, &jData); err != nil {
-		return "", err
+	// Need to pull repo data regardless
+	if err := decodeJSON(api, &repoData); err != nil {
+		return "", nil
 	}
 
-	// Get issue info
-	if id := groups["id"]; id != "" {
-		api += fmt.Sprintf(gitIssueAppend, id)
-		if err := decodeJSON(api, &jData); err != nil {
-			return "", err
+	// Default info
+	htmlURL := repoData.Html_url
+	lang := styles.LightBlue.Fg("%v", repoData.Language)
+	desc := repoData.Description
+
+	extras := strings.SplitN(groups["extra"], "/", 2)
+	if len(extras) > 1 {
+		switch extras[0] {
+		case "pull", "issues":
+			id := takeWhile(extras[1], isAlphaNum)
+
+			jData := githubIssueJSON{}
+			api += fmt.Sprintf("/issues/%v", id)
+
+			if err := decodeJSON(api, &jData); err != nil {
+				break
+			}
+
+			htmlURL = jData.Html_url
+			desc = jData.Title
+
+			switch jData.State {
+			case "open":
+				lang = styles.LightGreen.Fg("%v", repoData.Language)
+			case "closed":
+				lang = styles.LightRed.Fg("%v", repoData.Language)
+			}
+		case "commit":
+			id := takeWhile(extras[1], isHex)
+
+			jData := githubCommitJSON{}
+			api += fmt.Sprintf("/commits/%v", id)
+
+			if err := decodeJSON(api, &jData); err != nil {
+				break
+			}
+
+			htmlURL = jData.Html_url[:50] // Short hash - URL + 9 characters of commit hash
+			desc = jData.Commit.Message
 		}
-	}
-
-	var lang string
-	switch jData.State { // `State` will only be present for issues
-	case "open":
-		lang = styles.LightGreen.Fg("%v", jData.Language)
-	case "closed":
-		lang = styles.LightRed.Fg("%v", jData.Language)
-	default: // case "":
-		lang = styles.LightBlue.Fg("%v", jData.Language)
-	}
-
-	desc, homepage := jData.Title, ""
-	if desc == "" {
-		desc, homepage = jData.Description, jData.Homepage
 	}
 
 	if len(desc) > maxContentLen {
@@ -129,10 +147,10 @@ func githubParser(re *regexp.Regexp, url string) (string, error) {
 	}
 
 	return fmt.Sprintf("[%v] <%v> %v %v",
-		jData.Html_url,
+		htmlURL,
 		lang,
 		desc,
-		homepage,
+		repoData.Homepage,
 	), nil
 }
 

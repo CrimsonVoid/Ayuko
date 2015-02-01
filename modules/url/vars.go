@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	maxContentLen = 80
+	maxContentLen = 100
 )
 
 var (
@@ -51,24 +51,31 @@ var (
 	ytPLAPI    = "https://gdata.youtube.com/feeds/api/playlists/%v?v=2&alt=jsonc"
 )
 
-// Github
-type githubJSON struct {
+type githubRepoJSON struct {
 	Html_url    string
 	Description string
 	Language    string
 	Homepage    string
+}
 
-	// Issues
-	Title string
-	State string
+type githubIssueJSON struct {
+	Html_url string
+	Title    string
+	State    string
+}
+
+type githubCommitJSON struct {
+	Html_url string
+	Commit   struct {
+		Message string
+	}
 }
 
 var (
 	githubRegexp = regexp.MustCompile(
-		`github\.com/(?P<user>.*?)/(?P<repo>.*?)($|/((pull|issues)/(?P<id>\d+))?)`)
+		`github\.com/(?P<user>.*?)/(?P<repo>.*?)($|/(?P<extra>.*))`)
 	githubIORegexp = regexp.MustCompile(`(http(s)?://)?(?P<user>.*)\.github\.io/(?P<repo>.*?)($|/)`)
 	githubAPI      = "https://api.github.com/repos/%v/%v"
-	gitIssueAppend = "/issues/%v"
 )
 
 // Vimeo
