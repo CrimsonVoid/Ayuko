@@ -6,6 +6,7 @@ import (
 	"github.com/crimsonvoid/irclib"
 	"github.com/crimsonvoid/irclib/module"
 
+	"github.com/CrimsonVoid/ayuko/modules/magicball"
 	"github.com/CrimsonVoid/ayuko/modules/roll"
 	"github.com/crimsonvoid/ayuko/modules/fcode"
 	"github.com/crimsonvoid/ayuko/modules/reminds"
@@ -28,6 +29,7 @@ func main() {
 	m.Register(reminds.Module)
 	m.Register(url.Module)
 	m.Register(roll.Module)
+	m.Register(magicball.Module)
 	// m.Register(zen.Module)
 
 	m.Connect()
