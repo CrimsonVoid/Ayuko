@@ -13,7 +13,7 @@ func registerCommands() {
 }
 
 func regCommandRoll() {
-	re := regexp.MustCompile(`^-roll `)
+	re := regexp.MustCompile(`^(-|\.)roll .*`)
 
 	Module.Register(module.E_PRIVMSG, re, func(line *irc.Line) {
 		num := rng.Intn(101)

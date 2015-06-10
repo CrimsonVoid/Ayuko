@@ -13,7 +13,7 @@ func registerCommands() {
 }
 
 func regMagicBall() {
-	re := regexp.MustCompile(`^-8ball`)
+	re := regexp.MustCompile(`^(-|\.)8ball .*`)
 
 	Module.Register(module.E_PRIVMSG, re, func(line *irc.Line) {
 		index := rng.Intn(len(replies))

@@ -14,7 +14,7 @@ func registerCommands() {
 }
 
 func regChoices() {
-	re := regexp.MustCompile(`^-pick (?P<choice>.*)`)
+	re := regexp.MustCompile(`^(-|\.)pick (?P<choice>.*)`)
 
 	Module.Register(module.E_PRIVMSG, re, func(line *irc.Line) {
 		res := re.FindStringSubmatch(line.Text())
