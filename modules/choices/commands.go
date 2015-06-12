@@ -20,8 +20,10 @@ func regChoices() {
 		res := re.FindStringSubmatch(line.Text())
 
 		choices := []string{}
-		for _, cs := range strings.Split(res[2], " OR ") {
-			choices = append(choices, strings.Split(cs, " or ")...)
+		for _, cs := range strings.Split(res[2], ",") {
+			for _, c := range strings.Split(cs, " or ") {
+				choices = append(choices, strings.Split(c, " OR ")...)
+			}
 		}
 		index := rng.Intn(len(choices))
 
